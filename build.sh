@@ -14,7 +14,7 @@ function startTest() {
   _testname=$1
 }
 
-function evalText() {
+function evalTest() {
   local success=$?
   echo -n "${_testname:-UNDEFINED TEST} - "
   if [[ $success -eq 0 ]]; then
@@ -29,9 +29,9 @@ function evalText() {
 startTest "Shows usage help"
 usage=$(./wtl)
 [[ "${usage:0:5}" == "Usage" ]]
-evalText
+evalTest
 
 startTest "Outputs leaving time"
 time=$(./wtl 08:00)
 [[ "$time" == "16:20" ]]
-evalText
+evalTest
