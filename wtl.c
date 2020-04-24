@@ -10,11 +10,11 @@ int main(const int argc, const char** argv) {
     exit(1);
   }
 
-  wtl_time* time = parse_time(argv[1]);
-  wtl_time* leave = add_time(time, 8, 50);
+  wtl_time* started = parse_time(argv[1]);
+  wtl_time* leave = add_time(started, 8, 50);
 
-  printf("You need to work until %s\n", str_time(time));
-  printf("Started: %s\n", str_time(leave));
+  printf("You need to work until %s\n", str_time(leave));
+  printf("Started: %s\n", str_time(started));
 }
 
 void print_usage() {
