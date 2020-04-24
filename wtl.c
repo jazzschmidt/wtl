@@ -11,7 +11,9 @@ int main(const int argc, const char** argv) {
   }
 
   wtl_time* time = parse_time(argv[1]);
-  printf("%02d:%02d\n", time->hour, time->minute);
+  wtl_time* leave = add_time(time, 8, 50);
+  printf("You need to work until %02d:%02d\n", leave->hour, leave->minute);
+  printf("Started: %02d:%02d\n", time->hour, time->minute);
 }
 
 void print_usage() {
@@ -29,6 +31,22 @@ wtl_time* parse_time(const char* string) {
     .hour = parse_int(str_hour),
     .minute = parse_int(str_minute)
   };
+
+  return t;
+}
+
+wtl_time* add_time(const wtl_time* time, int hours, int minutes) {
+  wtl_time* t = malloc(sizeof(wtl_time));
+  *t = (wtl_time) {
+    .hour = time->hour + hours,
+    .minute = time->minute
+  };
+
+  t->minute += minutes;
+  if(t->minute >= 60) {
+    t->minute %= 60;
+    t->hour++;
+  }
 
   return t;
 }
