@@ -12,7 +12,7 @@ int main(const int argc, const char** argv) {
 
   wtl_time* time = parse_time(argv[1]);
   wtl_time* leave = add_time(time, 8, 50);
-  
+
   printf("You need to work until %s\n", str_time(time));
   printf("Started: %s\n", str_time(leave));
 }
@@ -32,6 +32,9 @@ wtl_time* parse_time(const char* string) {
     .hour = parse_int(str_hour),
     .minute = parse_int(str_minute)
   };
+
+  free(str_hour);
+  free(str_minute);
 
   return t;
 }
