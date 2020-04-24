@@ -7,3 +7,5 @@ typedef struct {
 void print_usage(void);
 
 wtl_time* parse_time(char*);
+
+int parse_int(char*);
