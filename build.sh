@@ -30,3 +30,8 @@ startTest "Shows usage help"
 usage=$(./wtl)
 [[ "${usage:0:5}" == "Usage" ]]
 evalText
+
+startTest "Outputs leaving time"
+time=$(./wtl 08:00)
+[[ "$time" == "16:20" ]]
+evalText
