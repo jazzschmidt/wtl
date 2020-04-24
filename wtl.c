@@ -10,8 +10,8 @@ int main(const int argc, const char** argv) {
     exit(1);
   }
 
-  wtl_time* time = parse_time("");
-  printf("%d:%d\n", time->hour, time->minute);
+  wtl_time* time = parse_time(argv[1]);
+  printf("%02d:%02d\n", time->hour, time->minute);
 }
 
 void print_usage() {
@@ -19,7 +19,18 @@ void print_usage() {
 }
 
 wtl_time* parse_time(char* string) {
-  return &(wtl_time){16,20};
+  char *str_hour, *str_minute;
+
+  str_hour = strsub(string, 0, 1);
+  str_minute = strsub(string, 3, 4);
+
+  wtl_time* t = malloc(sizeof(wtl_time));
+  *t = (wtl_time) {
+    .hour = parse_int(str_hour),
+    .minute = parse_int(str_minute)
+  };
+
+  return t;
 }
 
 int parse_int(char* string) {
@@ -29,4 +40,14 @@ int parse_int(char* string) {
   }
 
   return number;
+}
+
+char* strsub(char* string, int begin, int end) {
+  int length = end - begin + 1;
+
+  char* sub = malloc(length * sizeof(char));
+  memcpy(sub, &string[begin], length * sizeof(char));
+  sub[length + 1] = '\0';
+
+  return sub;
 }
