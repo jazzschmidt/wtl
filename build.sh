@@ -8,16 +8,25 @@ fi
 # Compile
 gcc -o wtl wtl.c
 
-# Test
-function passText() {
-  if [[ $? -eq 0 ]]; then
+# Test formatter methods
+_testname=
+function startTest() {
+  _testname=$1
+}
+
+function evalText() {
+  local success=$?
+  echo -n "${_testname:-UNDEFINED TEST} - "
+  if [[ $success -eq 0 ]]; then
     echo "success"
   else
     echo "failure"
   fi
 }
 
-echo -n "Shows usage help - "
+# Tests
+
+startTest "Shows usage help"
 usage=$(./wtl)
 [[ "${usage:0:5}" == "Usage" ]]
-passText
+evalText
