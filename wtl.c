@@ -9,7 +9,7 @@ int main(const int argc, const char** argv) {
   }
 
   wtl_time* time = parse_time("");
-  printf("%d:%d", time->hour, time->minute);
+  printf("%d:%d\n", time->hour, time->minute);
 }
 
 void print_usage() {
