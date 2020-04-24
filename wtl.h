@@ -1,6 +1,6 @@
 
 typedef struct {
-  char hour; char minute;
+  int hour; int minute;
 } wtl_time;
 
 
