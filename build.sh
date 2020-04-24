@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 # Remove previous build
 if [[ -f wtl ]]; then
@@ -9,4 +9,15 @@ fi
 gcc -o wtl wtl.c
 
 # Test
-./wtl
+function passText() {
+  if [[ $? -eq 0 ]]; then
+    echo "success"
+  else
+    echo "failure"
+  fi
+}
+
+echo -n "Shows usage help - "
+usage=$(./wtl)
+[[ "${usage:0:5}" == "Usage" ]]
+passText
