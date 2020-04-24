@@ -6,7 +6,7 @@ if [[ -f wtl ]]; then
 fi
 
 # Compile
-gcc -o wtl wtl.c
+gcc -o wtl wtl.c || exit 1
 
 # Test formatter methods
 _testname=
