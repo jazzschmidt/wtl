@@ -18,7 +18,7 @@ void print_usage() {
   printf("Usage: wtl\n");
 }
 
-wtl_time* parse_time(char* string) {
+wtl_time* parse_time(const char* string) {
   char *str_hour, *str_minute;
 
   str_hour = strsub(string, 0, 1);
@@ -33,7 +33,7 @@ wtl_time* parse_time(char* string) {
   return t;
 }
 
-int parse_int(char* string) {
+int parse_int(const char* string) {
   int number = 0;
   for(int i = strlen(string), n = 1; i > 0; i--, n*=10) {
     number += (string[i-1] - '0') * n;
@@ -42,7 +42,7 @@ int parse_int(char* string) {
   return number;
 }
 
-char* strsub(char* string, int begin, int end) {
+char* strsub(const char* string, int begin, int end) {
   int length = end - begin + 1;
 
   char* sub = malloc(length * sizeof(char));
