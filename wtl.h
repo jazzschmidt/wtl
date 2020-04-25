@@ -14,4 +14,6 @@ char* str_time(const wtl_time*);
 
 int parse_int(const char*);
 
+float parse_float(const char*);
+
 char* strsub(const char*, int, int);

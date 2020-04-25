@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
+#include <math.h>
 #include "wtl.h"
 
 int main(int argc, char** argv) {
@@ -16,7 +18,7 @@ int main(int argc, char** argv) {
         config=optarg;
         break;
       case 'h':
-        printf("Hours: %s\n", optarg);
+        hours = parse_float(optarg);
         break;
       case '?':
       default:
@@ -37,7 +39,7 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
-  wtl_time* started = parse_time(argv[1]);
+  wtl_time* started = parse_time(time);
   wtl_time* leave = add_time(started, 8, 50);
 
   printf("You need to work until %s\n", str_time(leave));
@@ -98,6 +100,26 @@ int parse_int(const char* string) {
   }
 
   return number;
+}
+
+float parse_float(const char* string) {
+  char *ptr = strchr(string, '.');
+
+  if(ptr == NULL) {
+    return (float)parse_int(string);
+  }
+
+  int pos = (int)(ptr - string);
+  float decimal = (float)parse_int(strsub(string, 0, pos-1));
+  float floating = (float)parse_int(strsub(string, pos+1, strlen(string)-1));
+
+  int d=0; // Count decimals of $floating
+  for(; floating - pow(10, d) >= 0; d++);
+
+  // Shift float behind the comma, e.g. 123.0 to 0.123
+  floating *= pow(10, d * -1);
+
+  return decimal + floating;
 }
 
 char* strsub(const char* string, int begin, int end) {
