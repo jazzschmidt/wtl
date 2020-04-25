@@ -1,11 +1,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
+#include <unistd.h>
 #include "wtl.h"
 
-int main(const int argc, const char** argv) {
-  if (argc != 2) {
+int main(int argc, char** argv) {
+  char *time;
+  char *config;
+  float hours;
+
+  int ch;
+  while((ch = getopt(argc, argv, "c:h:")) != -1) {
+    switch(ch) {
+      case 'c':
+        config=optarg;
+        break;
+      case 'h':
+        printf("Hours: %s\n", optarg);
+        break;
+      case '?':
+      default:
+        print_usage();
+        exit(1);
+    }
+  }
+
+  if(time && config) {
+    print_usage();
+    exit(1);
+  }
+
+  if(argc - optind == 1) {
+    time = argv[optind];
+  } else {
     print_usage();
     exit(1);
   }
@@ -19,8 +46,7 @@ int main(const int argc, const char** argv) {
 
 void print_usage() {
   printf(
-    "Usage: wtl [-c config] [time]\n"
-    "       wtl time timespan\n"
+    "Usage: wtl [-c config|-h hours] time\n"
   );
 }
 
