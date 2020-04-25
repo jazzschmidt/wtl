@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  if(time && config) {
+  if(hours && config) {
     print_usage();
     exit(1);
   }
