@@ -18,7 +18,10 @@ int main(const int argc, const char** argv) {
 }
 
 void print_usage() {
-  printf("Usage: wtl\n");
+  printf(
+    "Usage: wtl [-c config] [time]\n"
+    "       wtl time timespan\n"
+  );
 }
 
 wtl_time* parse_time(const char* string) {
