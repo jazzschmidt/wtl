@@ -4,13 +4,27 @@
 #include <unistd.h>
 #include <assert.h>
 #include <math.h>
+#include <ctype.h>
 #include "wtl.h"
 
 void cleanup() {
   fflush(NULL);
 }
 
+const char TIME_SEPARATOR = ':';
+
 int main(int argc, char** argv) {
+  assert(parse_ftime("08:00")->hour == 8);
+  assert(parse_ftime("08:02")->minute == 2);
+  assert(parse_ftime("4:7")->minute == 7);
+  assert(parse_ftime("8")->hour == 8);
+  assert(parse_ftime("6")->hour == 6);
+  assert(parse_ftime("6")->minute == 0);
+  assert(parse_ftime("8:30")->minute == 30);
+  assert(parse_ftime("8:60") == NULL);
+  assert(parse_ftime("8.5") == NULL);
+  exit(0);
+
   atexit(cleanup);
 
   wtl_args* args = parse_args(argc, argv);
@@ -32,6 +46,43 @@ void print_usage() {
     "Usage: wtl [-c config] [time]\n"
     "       wtl -h hours time\n"
   );
+}
+
+wtl_time* parse_ftime(const char* format) {
+  if(!valid_time_format(format)) {
+    return NULL;
+  }
+
+  int hour = 0, minute = 0;
+
+  char *ptr;
+  if((ptr = strchr(format, TIME_SEPARATOR)) != NULL) {
+    int pos = (int)(ptr - format);
+    hour = atoi(strsub(format, 0, pos-1));
+    minute = atoi(strsub(format, pos+1, strlen(format)-1));
+  } else {
+    hour = atoi(format);
+  }
+
+  if(hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+    return NULL;
+  }
+
+  wtl_time* t = malloc(sizeof(wtl_time));
+  *t = (wtl_time){ .hour = hour, .minute = minute };
+
+  return t;
+}
+
+int valid_time_format(const char* format) {
+  while (*format != '\0') {
+    if(!isdigit(*format) && *format != TIME_SEPARATOR) {
+      return 0;
+    }
+    format++;
+  }
+
+  return 1;
 }
 
 wtl_args* parse_args(int argc, char** argv) {

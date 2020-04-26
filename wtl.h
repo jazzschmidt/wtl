@@ -13,6 +13,8 @@ void print_usage(void);
 
 wtl_args* parse_args(int argc, char** argv);
 
+wtl_time* parse_ftime(const char*);
+
 wtl_time* parse_time(const char*);
 
 wtl_time* add_time(const wtl_time*, int, int);
@@ -24,3 +26,5 @@ int parse_int(const char*);
 float parse_float(const char*);
 
 char* strsub(const char*, int, int);
+
+int valid_time_format(const char*);
