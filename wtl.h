@@ -10,12 +10,14 @@ typedef struct {
 } wtl_args;
 
 typedef struct {
-  wtl_time *mon, *tue, *wed, *thu, *fri, *sat, *sun;
+  wtl_time *sun, *mon, *tue, *wed, *thu, *fri, *sat;
 } workday_hours;
 
 void print_usage(void);
 
 workday_hours* read_workday_hours(FILE*);
+
+wtl_time* hours_for(workday_hours*, time_t*);
 
 int read_kv(const char*, char**, char**);
 

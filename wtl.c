@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <math.h>
 #include <ctype.h>
+#include <time.h>
 #include "wtl.h"
 
 void cleanup() {
@@ -30,7 +31,11 @@ int main(int argc, char** argv) {
     leave = add_time(started, args->span->hour, args->span->minute);
   } else { // using configuration
     workday_hours* hours = read_workday_hours(args->config);
-    leave = add_time(started, hours->mon->hour, hours->mon->minute);
+
+    time_t today = time(NULL);
+    wtl_time* time = hours_for(hours, &today);
+
+    leave = add_time(started, time->hour, time->minute);
   }
 
   printf("You need to work until %s\n", str_time(leave));
@@ -72,10 +77,11 @@ workday_hours* read_workday_hours(FILE* file) {
         }
       }
 
-      char *keys[] = { "mon", "tue", "wed", "thu", "fri", "sat", "sun" };
+      char *keys[] = { "sun", "mon", "tue", "wed", "thu", "fri", "sat" };
       wtl_time **ptrs[] = {
+        &hours->sun,
         &hours->mon, &hours->tue, &hours->wed, &hours->thu, &hours->fri,
-        &hours->sat, &hours->sun
+        &hours->sat
       };
 
       for(int i = 0; i < 7; ++i) {
@@ -88,6 +94,18 @@ workday_hours* read_workday_hours(FILE* file) {
   }
 
   return hours;
+}
+
+wtl_time* hours_for(workday_hours* hours, time_t* time) {
+  struct tm* l_time = localtime(time);
+
+  wtl_time **ptrs[] = {
+    &hours->sun,
+    &hours->mon, &hours->tue, &hours->wed, &hours->thu, &hours->fri,
+    &hours->sat
+  };
+
+  return *ptrs[l_time->tm_wday];
 }
 
 int read_kv(const char* string, char **key, char **value) {
