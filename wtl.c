@@ -15,9 +15,11 @@ const char TIME_SEPARATOR = ':';
 
 int main(int argc, char** argv) {
   FILE* f = fopen("wtl.cfg", "r");
-  assert(read_workday_hours(f) != NULL);
-  assert(read_workday_hours(f)->mon->hour == 8);
-  assert(read_workday_hours(f)->fri->hour == 6);
+  workday_hours* h = read_workday_hours(f);
+  assert(h != NULL);
+  assert(h->mon->hour == 8);
+  assert(h->fri->hour == 6);
+  assert(h->sat->hour == 0);
   exit(0);
 
   atexit(cleanup);
@@ -60,7 +62,48 @@ workday_hours* read_workday_hours(FILE* file) {
   while((linelen = getline(&line, &linecap, file)) != -1) {
     char *key, *value;
     if(read_kv(line, &key, &value)) {
-      printf("%s => %s\n", key, value);
+      wtl_time* time = parse_ftime(value);
+
+      if(*key == '*') {
+        hours->mon = time;
+        hours->tue = time;
+        hours->wed = time;
+        hours->thu = time;
+        hours->fri = time;
+
+        if(strcmp(key, "**") == 0) {
+          hours->sat = time;
+          hours->sun = time;
+        }
+      }
+
+      if(strcmp(key, "mon") == 0) {
+        hours->mon = time;
+      }
+
+      if(strcmp(key, "tue") == 0) {
+        hours->tue = time;
+      }
+
+      if(strcmp(key, "wed") == 0) {
+        hours->wed = time;
+      }
+
+      if(strcmp(key, "thu") == 0) {
+        hours->thu = time;
+      }
+
+      if(strcmp(key, "fri") == 0) {
+        hours->fri = time;
+      }
+
+      if(strcmp(key, "sat") == 0) {
+        hours->sat = time;
+      }
+
+      if(strcmp(key, "sun") == 0) {
+        hours->sun = time;
+      }
     }
   }
 
@@ -75,7 +118,7 @@ int read_kv(const char* string, char **key, char **value) {
   }
 
   *key=strsub(string, 0, pos-1);
-  *value=strsub(string, pos+1, strlen(string)-1);
+  *value=strsub(string, pos+1, strlen(string)-2); // Also removes newline
 
   return 1;
 }
