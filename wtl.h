@@ -3,8 +3,15 @@ typedef struct {
   int hour; int minute;
 } wtl_time;
 
+typedef struct {
+  wtl_time* time;
+  FILE *config;
+  float hours;
+} wtl_args;
 
 void print_usage(void);
+
+wtl_args* parse_args(int argc, char** argv);
 
 wtl_time* parse_time(const char*);
 

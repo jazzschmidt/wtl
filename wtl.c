@@ -7,39 +7,14 @@
 #include "wtl.h"
 
 int main(int argc, char** argv) {
-  char *time;
-  char *config;
-  float hours;
+  wtl_args* args = parse_args(argc, argv);
 
-  int ch;
-  while((ch = getopt(argc, argv, "c:h:")) != -1) {
-    switch(ch) {
-      case 'c':
-        config=optarg;
-        break;
-      case 'h':
-        hours = parse_float(optarg);
-        break;
-      case '?':
-      default:
-        print_usage();
-        exit(1);
-    }
-  }
-
-  if(hours && config) {
+  if(!args || (args->hours && args->config)) {
     print_usage();
     exit(1);
   }
 
-  if(argc - optind == 1) {
-    time = argv[optind];
-  } else {
-    print_usage();
-    exit(1);
-  }
-
-  wtl_time* started = parse_time(time);
+  wtl_time* started = args->time;
   wtl_time* leave = add_time(started, 8, 50);
 
   printf("You need to work until %s\n", str_time(leave));
@@ -48,8 +23,43 @@ int main(int argc, char** argv) {
 
 void print_usage() {
   printf(
-    "Usage: wtl [-c config|-h hours] time\n"
+    "Usage: wtl [-c config] [time]\n"
+    "       wtl -h hours time\n"
   );
+}
+
+wtl_args* parse_args(int argc, char** argv) {
+  wtl_args* args = malloc(sizeof(wtl_args));
+
+  FILE* config;
+
+  int ch;
+  while((ch = getopt(argc, argv, "c:h:")) != -1) {
+    switch(ch) {
+      case 'c':
+        config = fopen(optarg, "r");
+
+        if(!config) {
+          perror(NULL);
+          return NULL;
+        }
+
+        args->config = config;
+        break;
+      case 'h':
+        args->hours = parse_float(optarg);
+        break;
+      case '?':
+      default:
+        return NULL;
+    }
+  }
+
+  if(argc - optind == 1) {
+    args->time = parse_time(argv[optind]);
+  }
+
+  return args;
 }
 
 wtl_time* parse_time(const char* string) {
