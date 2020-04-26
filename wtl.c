@@ -36,6 +36,8 @@ void print_usage() {
 
 wtl_args* parse_args(int argc, char** argv) {
   wtl_args* args = malloc(sizeof(wtl_args));
+  args->config = NULL;
+  args->time = NULL;
 
   FILE* config;
 
