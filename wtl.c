@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
 
   wtl_args* args = parse_args(argc, argv);
 
-  if(!args || (args->hours && args->config)) {
+  if(!args || (args->hours > 0 && args->config)) {
     print_usage();
     exit(1);
   }
