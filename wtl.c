@@ -58,10 +58,26 @@ workday_hours* read_workday_hours(FILE* file) {
   size_t linecap = 0;
   ssize_t linelen;
   while((linelen = getline(&line, &linecap, file)) != -1) {
-    printf("%s", line);
+    char *key, *value;
+    if(read_kv(line, &key, &value)) {
+      printf("%s => %s\n", key, value);
+    }
   }
 
   return hours;
+}
+
+int read_kv(const char* string, char **key, char **value) {
+  int pos = strpos(string, '=');
+
+  if(pos <= 0) {
+    return 0;
+  }
+
+  *key=strsub(string, 0, pos-1);
+  *value=strsub(string, pos+1, strlen(string)-1);
+
+  return 1;
 }
 
 wtl_time* parse_ftime(const char* format) {

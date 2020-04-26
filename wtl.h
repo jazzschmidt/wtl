@@ -17,6 +17,8 @@ void print_usage(void);
 
 workday_hours* read_workday_hours(FILE*);
 
+int read_kv(const char*, char**, char**);
+
 wtl_args* parse_args(int argc, char** argv);
 
 wtl_time* parse_ftime(const char*);
