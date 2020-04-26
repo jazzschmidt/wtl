@@ -6,7 +6,13 @@
 #include <math.h>
 #include "wtl.h"
 
+void cleanup() {
+  fflush(NULL);
+}
+
 int main(int argc, char** argv) {
+  atexit(cleanup);
+
   wtl_args* args = parse_args(argc, argv);
 
   if(!args || (args->hours && args->config)) {
