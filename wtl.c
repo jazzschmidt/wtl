@@ -24,7 +24,11 @@ int main(int argc, char** argv) {
   }
 
   wtl_time* started = args->time;
+
   wtl_time* leave = add_time(started, 8, 50);
+  if(args->span) {
+    leave = add_time(started, args->span->hour, args->span->minute);
+  }
 
   printf("You need to work until %s\n", str_time(leave));
   printf("Started: %s\n", str_time(started));
