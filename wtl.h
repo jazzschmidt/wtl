@@ -5,8 +5,8 @@ typedef struct {
 
 typedef struct {
   wtl_time* time;
+  wtl_time* span;
   FILE *config;
-  float hours;
 } wtl_args;
 
 void print_usage(void);

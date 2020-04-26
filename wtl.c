@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
 
   wtl_args* args = parse_args(argc, argv);
 
-  if(!args || (args->hours > 0 && args->config)) {
+  if(!args || (args->span && args->config)) {
     print_usage();
     exit(1);
   }
@@ -78,6 +78,7 @@ wtl_args* parse_args(int argc, char** argv) {
   wtl_args* args = malloc(sizeof(wtl_args));
   args->config = NULL;
   args->time = NULL;
+  args->span = NULL;
 
   FILE* config;
 
@@ -95,7 +96,7 @@ wtl_args* parse_args(int argc, char** argv) {
         args->config = config;
         break;
       case 'h':
-        args->hours = parse_float(optarg);
+        args->span = parse_ftime(optarg);
         break;
       case '?':
       default:
