@@ -14,14 +14,6 @@ void cleanup() {
 const char TIME_SEPARATOR = ':';
 
 int main(int argc, char** argv) {
-  FILE* f = fopen("wtl.cfg", "r");
-  workday_hours* h = read_workday_hours(f);
-  assert(h != NULL);
-  assert(h->mon->hour == 8);
-  assert(h->fri->hour == 6);
-  assert(h->sat->hour == 0);
-  exit(0);
-
   atexit(cleanup);
 
   wtl_args* args = parse_args(argc, argv);
@@ -32,10 +24,13 @@ int main(int argc, char** argv) {
   }
 
   wtl_time* started = args->time;
+  wtl_time* leave;
 
-  wtl_time* leave = add_time(started, 8, 50);
-  if(args->span) {
+  if(args->span) { // -h argument present
     leave = add_time(started, args->span->hour, args->span->minute);
+  } else { // using configuration
+    workday_hours* hours = read_workday_hours(args->config);
+    leave = add_time(started, hours->mon->hour, hours->mon->minute);
   }
 
   printf("You need to work until %s\n", str_time(leave));
