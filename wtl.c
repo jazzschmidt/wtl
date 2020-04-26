@@ -71,9 +71,8 @@ wtl_time* parse_ftime(const char* format) {
 
   int hour = 0, minute = 0;
 
-  char *ptr;
-  if((ptr = strchr(format, TIME_SEPARATOR)) != NULL) {
-    int pos = (int)(ptr - format);
+  int pos;
+  if((pos = strpos(format, TIME_SEPARATOR)) != -1) {
     hour = atoi(strsub(format, 0, pos-1));
     minute = atoi(strsub(format, pos+1, strlen(format)-1));
   } else {
@@ -216,4 +215,13 @@ char* strsub(const char* string, int begin, int end) {
   sub[length + 1] = '\0';
 
   return sub;
+}
+
+int strpos(const char* haystack, const char needle) {
+  char *ptr;
+  if((ptr = strchr(haystack, needle)) != NULL) {
+    return (int)(ptr - haystack);
+  } else {
+    return -1;
+  }
 }

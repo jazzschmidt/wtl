@@ -34,3 +34,5 @@ float parse_float(const char*);
 char* strsub(const char*, int, int);
 
 int valid_time_format(const char*);
+
+int strpos(const char*, const char);
