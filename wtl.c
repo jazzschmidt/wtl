@@ -30,6 +30,17 @@ int main(int argc, char** argv) {
   if(args->span) { // -h argument present
     leave = add_time(started, args->span->hour, args->span->minute);
   } else { // using configuration
+    if(!args->config) {
+      FILE* config;
+
+      if((config  = default_cfg()) != NULL) {
+        args->config = config;
+      } else {
+        perror("Could not find ~/.wtl");
+        exit(1);
+      }
+    }
+
     workday_hours* hours = read_workday_hours(args->config);
 
     time_t today = time(NULL);
@@ -47,6 +58,13 @@ void print_usage() {
     "Usage: wtl [-c config] [time]\n"
     "       wtl -h hours time\n"
   );
+}
+
+FILE* default_cfg() {
+  char *fname;
+  sprintf(fname, "%s/%s", getenv("HOME"), ".wtl");
+
+  return fopen(fname, "r");
 }
 
 workday_hours* read_workday_hours(FILE* file) {

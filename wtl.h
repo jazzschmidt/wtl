@@ -15,6 +15,8 @@ typedef struct {
 
 void print_usage(void);
 
+FILE* default_cfg(void);
+
 workday_hours* read_workday_hours(FILE*);
 
 wtl_time* hours_for(workday_hours*, time_t*);
