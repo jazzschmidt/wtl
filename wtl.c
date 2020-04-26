@@ -14,17 +14,6 @@ void cleanup() {
 const char TIME_SEPARATOR = ':';
 
 int main(int argc, char** argv) {
-  assert(parse_ftime("08:00")->hour == 8);
-  assert(parse_ftime("08:02")->minute == 2);
-  assert(parse_ftime("4:7")->minute == 7);
-  assert(parse_ftime("8")->hour == 8);
-  assert(parse_ftime("6")->hour == 6);
-  assert(parse_ftime("6")->minute == 0);
-  assert(parse_ftime("8:30")->minute == 30);
-  assert(parse_ftime("8:60") == NULL);
-  assert(parse_ftime("8.5") == NULL);
-  exit(0);
-
   atexit(cleanup);
 
   wtl_args* args = parse_args(argc, argv);
