@@ -14,6 +14,12 @@ void cleanup() {
 const char TIME_SEPARATOR = ':';
 
 int main(int argc, char** argv) {
+  FILE* f = fopen("wtl.cfg", "r");
+  assert(read_workday_hours(f) != NULL);
+  assert(read_workday_hours(f)->mon->hour == 8);
+  assert(read_workday_hours(f)->fri->hour == 6);
+  exit(0);
+
   atexit(cleanup);
 
   wtl_args* args = parse_args(argc, argv);
@@ -39,6 +45,23 @@ void print_usage() {
     "Usage: wtl [-c config] [time]\n"
     "       wtl -h hours time\n"
   );
+}
+
+workday_hours* read_workday_hours(FILE* file) {
+  workday_hours* hours = malloc(sizeof(workday_hours));
+  wtl_time* no_time = parse_ftime("0");
+
+  *hours = (workday_hours)
+    { no_time, no_time, no_time, no_time, no_time, no_time, no_time };
+
+  char *line = NULL;
+  size_t linecap = 0;
+  ssize_t linelen;
+  while((linelen = getline(&line, &linecap, file)) != -1) {
+    printf("%s", line);
+  }
+
+  return hours;
 }
 
 wtl_time* parse_ftime(const char* format) {

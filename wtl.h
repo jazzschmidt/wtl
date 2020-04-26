@@ -9,7 +9,13 @@ typedef struct {
   FILE *config;
 } wtl_args;
 
+typedef struct {
+  wtl_time *mon, *tue, *wed, *thu, *fri, *sat, *sun;
+} workday_hours;
+
 void print_usage(void);
+
+workday_hours* read_workday_hours(FILE*);
 
 wtl_args* parse_args(int argc, char** argv);
 
