@@ -77,32 +77,17 @@ workday_hours* read_workday_hours(FILE* file) {
         }
       }
 
-      if(strcmp(key, "mon") == 0) {
-        hours->mon = time;
-      }
+      char *keys[] = { "mon", "tue", "wed", "thu", "fri", "sat", "sun" };
+      wtl_time **ptrs[] = {
+        &hours->mon, &hours->tue, &hours->wed, &hours->thu, &hours->fri,
+        &hours->sat, &hours->sun
+      };
 
-      if(strcmp(key, "tue") == 0) {
-        hours->tue = time;
-      }
-
-      if(strcmp(key, "wed") == 0) {
-        hours->wed = time;
-      }
-
-      if(strcmp(key, "thu") == 0) {
-        hours->thu = time;
-      }
-
-      if(strcmp(key, "fri") == 0) {
-        hours->fri = time;
-      }
-
-      if(strcmp(key, "sat") == 0) {
-        hours->sat = time;
-      }
-
-      if(strcmp(key, "sun") == 0) {
-        hours->sun = time;
+      for(int i = 0; i < 7; ++i) {
+        if(strcmp(key, keys[i]) == 0) {
+          *ptrs[i] = time;
+          break;
+        }
       }
     }
   }
