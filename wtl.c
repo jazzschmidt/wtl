@@ -24,6 +24,15 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
+  time_t today = time(NULL);
+  struct tm* l_time = localtime(&today);
+
+  if(!args->time) {
+    char *ftime;
+    asprintf(&ftime, "%02d%c%02d", l_time->tm_hour, TIME_SEPARATOR, l_time->tm_min);
+    args->time = parse_ftime(ftime);
+  }
+
   wtl_time* started = args->time;
   wtl_time* leave;
 
@@ -42,8 +51,6 @@ int main(int argc, char** argv) {
     }
 
     workday_hours* hours = read_workday_hours(args->config);
-
-    time_t today = time(NULL);
     wtl_time* time = hours_for(hours, &today);
 
     leave = add_time(started, time->hour, time->minute);
@@ -62,8 +69,7 @@ void print_usage() {
 
 FILE* default_cfg() {
   char *fname;
-  sprintf(fname, "%s/%s", getenv("HOME"), ".wtl");
-
+  asprintf(&fname, "%s/%s", getenv("HOME"), ".wtl");
   return fopen(fname, "r");
 }
 
