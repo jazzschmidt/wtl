@@ -5,6 +5,12 @@ if [[ -f wtl ]]; then
   rm -f wtl
 fi
 
+# Remove previous reports
+if [[ -d report ]]; then
+  rm -f report/*
+fi
+
+# Analyze
+gcc --analyze --analyzer-output html -o report wtl.c || exit 1
 # Compile
-gcc --analyze --analyzer-output html -o wtl wtl.c || exit 1
-mv wtl report
+gcc -o wtl wtl.c || exit 1
