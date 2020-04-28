@@ -19,6 +19,10 @@ const char TIME_SEPARATOR = ':';
 int main(int argc, char** argv) {
   atexit(cleanup);
 
+  assert(read_config("wtl0.cfg")->hours->tue->hour == 0);
+  assert(read_config("wtl0.cfg")->hours->fri->hour == 6);
+  exit(0);
+
   wtl_args* args = parse_args(argc, argv);
 
   if(!args || (args->span && args->config_file)) {
@@ -81,13 +85,6 @@ int config_start_time(char* key, char* value, wtl_config* cfg) {
 
 int config_hours(char* key, char* value, wtl_config* cfg) {
   wtl_time* time = parse_ftime(value);
-  wtl_time* no_time = parse_ftime("0");
-
-  if(cfg->hours == NULL) {
-    cfg->hours = malloc(sizeof(workday_hours));
-    *cfg->hours = (workday_hours)
-      { no_time, no_time, no_time, no_time, no_time, no_time, no_time };
-  }
 
   if(*key == '*') {
     cfg->hours->mon = time;
@@ -134,13 +131,26 @@ wtl_config* read_config(char* fname) {
 
   struct config_parser parser[] = {
     { "started", &config_start_time },
-    { "*", &config_hours }
+    { "*", &config_hours },
+    { "**", &config_hours },
+    { "sun", &config_hours },
+    { "mon", &config_hours },
+    { "tue", &config_hours },
+    { "wed", &config_hours },
+    { "thu", &config_hours },
+    { "fri", &config_hours },
+    { "sat", &config_hours }
   };
   int parser_count = sizeof(parser) / sizeof(struct config_parser);
-  assert(parser_count == 2);
 
   wtl_config* config = malloc(sizeof(wtl_config));
-  *config = (wtl_config){};
+  wtl_time* no_time = parse_ftime("0");
+
+  *config = (wtl_config){
+    .hours = &(workday_hours)
+      { no_time, no_time, no_time, no_time, no_time, no_time, no_time },
+    .start_time = NULL,
+  };
 
   char *line = NULL;
   size_t linecap = 0;
