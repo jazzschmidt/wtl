@@ -36,10 +36,12 @@ int main(int argc, char** argv) {
   wtl_time* started = args->time;
   wtl_time* leave;
 
+  wtl_config* config = NULL;
+
   if(args->span) { // -h argument present
     leave = add_time(started, args->span->hour, args->span->minute);
   } else { // using configuration
-    wtl_config* config;
+
 
     if(!args->config_file) {
       config = read_config(default_cfg_file());
@@ -68,6 +70,7 @@ int main(int argc, char** argv) {
 
   free(args);
   free(leave);
+  free(config);
 }
 
 void print_usage() {
