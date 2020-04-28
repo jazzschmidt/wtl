@@ -103,6 +103,8 @@ int config_hours(char* key, char* value, wtl_config* cfg) {
       cfg->hours->sat = time;
       cfg->hours->sun = time;
     }
+
+    return 1;
   }
 
   char *keys[] = { "sun", "mon", "tue", "wed", "thu", "fri", "sat" };
@@ -123,7 +125,6 @@ int config_hours(char* key, char* value, wtl_config* cfg) {
 }
 
 void log_hours(const workday_hours *h) {
-  printf("%d\n", h->tue->hour);
   printf("[workday_hours at %p]: \n", (void*)h);
   printf(
     "{ sun: %s, mon: %s, tue: %s, wed: %s, thu: %s, fri: %s, sat: %s}\n",
@@ -161,10 +162,13 @@ wtl_config* read_config(char* fname) {
 
   wtl_config* config = malloc(sizeof(wtl_config));
   wtl_time* no_time = parse_ftime("0");
+  workday_hours* no_hours = malloc(sizeof(workday_hours));
+  *no_hours = (workday_hours){
+    no_time, no_time, no_time, no_time, no_time, no_time, no_time
+  };
 
   *config = (wtl_config){
-    .hours = &(workday_hours)
-      { no_time, no_time, no_time, no_time, no_time, no_time, no_time },
+    .hours = no_hours,
     .start_time = NULL,
   };
 
