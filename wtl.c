@@ -19,10 +19,6 @@ const char TIME_SEPARATOR = ':';
 int main(int argc, char** argv) {
   atexit(cleanup);
 
-  assert(read_config("wtl0.cfg")->hours->tue->hour == 0);
-  assert(read_config("wtl0.cfg")->hours->fri->hour == 6);
-  exit(0);
-
   wtl_args* args = parse_args(argc, argv);
 
   if(!args || (args->span && args->config_file)) {
@@ -56,6 +52,10 @@ int main(int argc, char** argv) {
     if(config == NULL) {
       printf("Configuration could not be read!\n");
       exit(1);
+    }
+
+    if(config->start_time) {
+      started = config->start_time;
     }
 
     wtl_time* time = hours_for(config->hours, &today);
