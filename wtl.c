@@ -281,28 +281,10 @@ wtl_args* parse_args(int argc, char** argv) {
   }
 
   if(argc - optind == 1) {
-    args->time = parse_time(argv[optind]);
+    args->time = parse_ftime(argv[optind]);
   }
 
   return args;
-}
-
-wtl_time* parse_time(const char* string) {
-  char *str_hour, *str_minute;
-
-  str_hour = strsub(string, 0, 1);
-  str_minute = strsub(string, 3, 4);
-
-  wtl_time* t = malloc(sizeof(wtl_time));
-  *t = (wtl_time) {
-    .hour = parse_int(str_hour),
-    .minute = parse_int(str_minute)
-  };
-
-  free(str_hour);
-  free(str_minute);
-
-  return t;
 }
 
 wtl_time* add_time(const wtl_time* time, int hours, int minutes) {
@@ -328,35 +310,6 @@ char* str_time(const wtl_time* time) {
   sprintf(string, "%02d:%02d", time->hour, time->minute);
 
   return string;
-}
-
-int parse_int(const char* string) {
-  int number = 0;
-  for(int i = strlen(string), n = 1; i > 0; i--, n*=10) {
-    number += (string[i-1] - '0') * n;
-  }
-
-  return number;
-}
-
-float parse_float(const char* string) {
-  char *ptr = strchr(string, '.');
-
-  if(ptr == NULL) {
-    return (float)parse_int(string);
-  }
-
-  int pos = (int)(ptr - string);
-  float decimal = (float)parse_int(strsub(string, 0, pos-1));
-  float floating = (float)parse_int(strsub(string, pos+1, strlen(string)-1));
-
-  int d=0; // Count decimals of $floating
-  for(; floating - pow(10, d) >= 0; d++);
-
-  // Shift float behind the comma, e.g. 123.0 to 0.123
-  floating *= pow(10, d * -1);
-
-  return decimal + floating;
 }
 
 char* strsub(const char* string, int begin, int end) {

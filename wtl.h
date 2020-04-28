@@ -32,17 +32,11 @@ wtl_args* parse_args(int argc, char** argv);
 
 wtl_time* parse_ftime(const char*);
 
-wtl_time* parse_time(const char*);
-
 char* time_to_string(wtl_time*);
 
 wtl_time* add_time(const wtl_time*, int, int);
 
 char* str_time(const wtl_time*);
-
-int parse_int(const char*);
-
-float parse_float(const char*);
 
 char* strsub(const char*, int, int);
 
