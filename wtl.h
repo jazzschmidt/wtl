@@ -13,6 +13,13 @@ typedef struct {
   wtl_time *sun, *mon, *tue, *wed, *thu, *fri, *sat;
 } workday_hours;
 
+typedef struct {
+  workday_hours* hours;
+  wtl_time* start_time;
+} wtl_config;
+
+wtl_config* read_config(char*);
+
 void print_usage(void);
 
 FILE* default_cfg(void);
@@ -28,6 +35,8 @@ wtl_args* parse_args(int argc, char** argv);
 wtl_time* parse_ftime(const char*);
 
 wtl_time* parse_time(const char*);
+
+char* time_to_string(wtl_time*);
 
 wtl_time* add_time(const wtl_time*, int, int);
 

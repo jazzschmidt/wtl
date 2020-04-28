@@ -8,6 +8,8 @@
 #include <time.h>
 #include "wtl.h"
 
+#define LNUM printf("%d\n", __LINE__);
+
 void cleanup() {
   fflush(NULL);
 }
@@ -16,6 +18,15 @@ const char TIME_SEPARATOR = ':';
 
 int main(int argc, char** argv) {
   atexit(cleanup);
+  wtl_config* config = read_config("wtl.cfg");
+  assert(config->start_time == NULL);
+
+  wtl_config* config2 = read_config("wtl0.cfg");
+  assert(config2->start_time->hour == 7);
+  assert(config2->start_time->minute == 15);
+  exit(0);
+
+
 
   wtl_args* args = parse_args(argc, argv);
 
@@ -67,10 +78,134 @@ void print_usage() {
   );
 }
 
+
+int config_start_time(char* key, char* value, wtl_config* cfg) {
+  if(strcmp(key, "started") == 0) {
+    cfg->start_time = parse_ftime(value);
+  }
+
+  return 1;
+}
+
+int config_hours(char* key, char* value, wtl_config* cfg) {
+  wtl_time* time = parse_ftime(value);
+  wtl_time* no_time = parse_ftime("0");
+
+  if(cfg->hours == NULL) {
+    cfg->hours = malloc(sizeof(workday_hours));
+    *cfg->hours = (workday_hours)
+      { no_time, no_time, no_time, no_time, no_time, no_time, no_time };
+  }
+
+  if(*key == '*') {
+    cfg->hours->mon = time;
+    cfg->hours->tue = time;
+    cfg->hours->wed = time;
+    cfg->hours->thu = time;
+    cfg->hours->fri = time;
+
+    if(strcmp(key, "**") == 0) {
+      cfg->hours->sat = time;
+      cfg->hours->sun = time;
+    }
+  }
+
+  char *keys[] = { "sun", "mon", "tue", "wed", "thu", "fri", "sat" };
+  wtl_time **ptrs[] = {
+    &cfg->hours->sun,
+    &cfg->hours->mon, &cfg->hours->tue, &cfg->hours->wed, &cfg->hours->thu, &cfg->hours->fri,
+    &cfg->hours->sat
+  };
+
+  for(int i = 0; i < 7; ++i) {
+    if(strcmp(key, keys[i]) == 0) {
+      *ptrs[i] = time;
+      break;
+    }
+  }
+
+  return 1;
+}
+
+wtl_config* read_config(char* fname) {
+  FILE* file = fopen(fname, "r");
+
+  if(file == NULL) {
+    perror(NULL);
+    return NULL;
+  }
+
+  struct config_parser {
+    char* key;
+    int (*parser)(char*,char*,wtl_config*);
+  };
+
+  struct config_parser parser[] = {
+    { "started", &config_start_time },
+    { "*", &config_hours }
+  };
+  int parser_count = sizeof(parser) / sizeof(struct config_parser);
+  assert(parser_count == 2);
+
+  wtl_config* config = malloc(sizeof(wtl_config));
+  *config = (wtl_config){};
+
+  char *line = NULL;
+  size_t linecap = 0;
+  ssize_t linelen;
+  while((linelen = getline(&line, &linecap, file)) != -1) {
+    char *key, *value;
+    if(read_kv(line, &key, &value)) {
+      // Find parser function
+      for(int i = 0; i < parser_count; ++i) {
+        if(strcmp(parser[i].key, key) == 0) {
+          if(!parser[i].parser(key, value, config)) {
+            fclose(file);
+            return NULL;
+          }
+        }
+      }
+    }
+  }
+
+  fclose(file);
+  return config;
+}
+
 FILE* default_cfg() {
   char *fname;
   asprintf(&fname, "%s/%s", getenv("HOME"), ".wtl");
   return fopen(fname, "r");
+}
+
+void time_setenv(wtl_time* start_time) {
+  char* timeset;
+  asprintf(&timeset, "%ld", time(NULL));
+  printf("Prev: %s\n", getenv("WTL_TIME"));
+  printf("Setting...\n");
+}
+
+wtl_time* time_getenv() {
+  time_t now = time(NULL);
+  time_t set = (time_t)atol(getenv("WTL_TIME_SET"));
+
+  struct tm* local_now = localtime(&now);
+  struct tm* local_set = localtime(&set);
+
+  if(local_now->tm_wday != local_set->tm_wday) {
+    printf("Unsetting...\n");
+    unsetenv("WTL_TIME");
+    unsetenv("WTL_TIME_SET");
+  }
+
+  return NULL;
+}
+
+char* time_to_string(wtl_time* t) {
+  char *string;
+  asprintf(&string, "%02d%c%02d", t->hour, TIME_SEPARATOR, t->minute);
+
+  return string;
 }
 
 workday_hours* read_workday_hours(FILE* file) {
@@ -293,7 +428,7 @@ char* strsub(const char* string, int begin, int end) {
 
   char* sub = malloc(length * sizeof(char));
   memcpy(sub, &string[begin], length * sizeof(char));
-  sub[length + 1] = '\0';
+  sub[length] = '\0';
 
   return sub;
 }
