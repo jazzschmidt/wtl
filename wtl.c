@@ -370,6 +370,8 @@ wtl_time* add_time(const wtl_time* time, int hours, int minutes) {
     t->hour++;
   }
 
+  t->hour %= 24;
+
   return t;
 }
 
