@@ -45,11 +45,13 @@ int main(int argc, char** argv) {
 
     if(!args->config_file) {
       config = read_config(default_cfg_file());
-      if(config == NULL) {
-        exit(1);
-      }
     } else {
       config = read_config(args->config_file);
+    }
+
+    if(config == NULL) {
+      printf("Configuration could not be read!\n");
+      exit(1);
     }
 
     wtl_time* time = hours_for(config->hours, &today);
