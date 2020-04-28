@@ -6,4 +6,5 @@ if [[ -f wtl ]]; then
 fi
 
 # Compile
-gcc -o wtl wtl.c || exit 1
+gcc --analyze --analyzer-output html -o wtl wtl.c || exit 1
+mv wtl report
