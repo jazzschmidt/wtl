@@ -185,11 +185,6 @@ wtl_config* read_config(char* fname) {
   return config;
 }
 
-FILE* default_cfg() {
-  char *fname = default_cfg_file();
-  return fopen(fname, "r");
-}
-
 char* default_cfg_file() {
   char *fname;
   asprintf(&fname, "%s/%s", getenv("HOME"), ".wtl");
