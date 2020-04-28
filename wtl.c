@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
 
   wtl_args* args = parse_args(argc, argv);
 
-  if(!args || (args->span && args->config)) {
+  if(!args || (args->span && args->config_file)) {
     print_usage();
     exit(1);
   }
@@ -45,8 +45,11 @@ int main(int argc, char** argv) {
 
     if(!args->config_file) {
       config = read_config(default_cfg_file());
+      if(config == NULL) {
+        exit(1);
+      }
     } else {
-      config = read_config(args->config_file)
+      config = read_config(args->config_file);
     }
 
     wtl_time* time = hours_for(config->hours, &today);
@@ -318,7 +321,7 @@ wtl_args* parse_args(int argc, char** argv) {
   while((ch = getopt(argc, argv, "c:h:")) != -1) {
     switch(ch) {
       case 'c':
-        args->config_file = config;
+        args->config_file = optarg;
         break;
       case 'h':
         args->span = parse_ftime(optarg);
