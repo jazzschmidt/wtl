@@ -191,29 +191,6 @@ char* default_cfg_file() {
   return fname;
 }
 
-void time_setenv(wtl_time* start_time) {
-  char* timeset;
-  asprintf(&timeset, "%ld", time(NULL));
-  printf("Prev: %s\n", getenv("WTL_TIME"));
-  printf("Setting...\n");
-}
-
-wtl_time* time_getenv() {
-  time_t now = time(NULL);
-  time_t set = (time_t)atol(getenv("WTL_TIME_SET"));
-
-  struct tm* local_now = localtime(&now);
-  struct tm* local_set = localtime(&set);
-
-  if(local_now->tm_wday != local_set->tm_wday) {
-    printf("Unsetting...\n");
-    unsetenv("WTL_TIME");
-    unsetenv("WTL_TIME_SET");
-  }
-
-  return NULL;
-}
-
 char* time_to_string(wtl_time* t) {
   char *string;
   asprintf(&string, "%02d%c%02d", t->hour, TIME_SEPARATOR, t->minute);
