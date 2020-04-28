@@ -67,6 +67,7 @@ int main(int argc, char** argv) {
   printf("Started: %s\n", str_time(started));
 
   free(args);
+  free(leave);
 }
 
 void print_usage() {
