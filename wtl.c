@@ -41,19 +41,15 @@ int main(int argc, char** argv) {
   if(args->span) { // -h argument present
     leave = add_time(started, args->span->hour, args->span->minute);
   } else { // using configuration
-    if(!args->config) {
-      FILE* config;
+    wtl_config* config;
 
-      if((config  = default_cfg()) != NULL) {
-        args->config = config;
-      } else {
-        perror("Could not find ~/.wtl");
-        exit(1);
-      }
+    if(!args->config_file) {
+      config = read_config(default_cfg_file());
+    } else {
+      config = read_config(args->config_file)
     }
 
-    workday_hours* hours = read_workday_hours(args->config);
-    wtl_time* time = hours_for(hours, &today);
+    wtl_time* time = hours_for(config->hours, &today);
 
     leave = add_time(started, time->hour, time->minute);
   }
@@ -314,24 +310,15 @@ int valid_time_format(const char* format) {
 
 wtl_args* parse_args(int argc, char** argv) {
   wtl_args* args = malloc(sizeof(wtl_args));
-  args->config = NULL;
+  args->config_file = NULL;
   args->time = NULL;
   args->span = NULL;
-
-  FILE* config;
 
   int ch;
   while((ch = getopt(argc, argv, "c:h:")) != -1) {
     switch(ch) {
       case 'c':
-        config = fopen(optarg, "r");
-
-        if(!config) {
-          perror(NULL);
-          return NULL;
-        }
-
-        args->config = config;
+        args->config_file = config;
         break;
       case 'h':
         args->span = parse_ftime(optarg);

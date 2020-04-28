@@ -6,7 +6,7 @@ typedef struct {
 typedef struct {
   wtl_time* time;
   wtl_time* span;
-  FILE *config;
+  char *config_file;
 } wtl_args;
 
 typedef struct {
