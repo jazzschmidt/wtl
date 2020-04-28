@@ -234,8 +234,14 @@ wtl_time* parse_ftime(const char* format) {
 
   int pos;
   if((pos = strpos(format, TIME_SEPARATOR)) != -1) {
-    hour = atoi(strsub(format, 0, pos-1));
-    minute = atoi(strsub(format, pos+1, strlen(format)-1));
+    char *hour_str = strsub(format, 0, pos-1);
+    char *minute_str = strsub(format, pos+1, strlen(format)-1);
+
+    hour = atoi(hour_str);
+    minute = atoi(minute_str);
+
+    free(hour_str);
+    free(minute_str);
   } else {
     hour = atoi(format);
   }
