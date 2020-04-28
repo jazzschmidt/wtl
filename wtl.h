@@ -28,7 +28,7 @@ char* default_cfg_file(void);
 
 workday_hours* read_workday_hours(FILE*);
 
-wtl_time* hours_for(workday_hours*, time_t*);
+wtl_time* hours_for(workday_hours*, time_t);
 
 int read_kv(const char*, char**, char**);
 
@@ -53,3 +53,5 @@ char* strsub(const char*, int, int);
 int valid_time_format(const char*);
 
 int strpos(const char*, const char);
+
+void log_hours(const workday_hours*);

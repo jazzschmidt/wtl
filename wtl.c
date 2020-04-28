@@ -8,8 +8,6 @@
 #include <time.h>
 #include "wtl.h"
 
-#define LNUM printf("%d\n", __LINE__);
-
 void cleanup() {
   fflush(NULL);
 }
@@ -58,7 +56,9 @@ int main(int argc, char** argv) {
       started = config->start_time;
     }
 
-    wtl_time* time = hours_for(config->hours, &today);
+    log_hours(config->hours);
+
+    wtl_time* time = hours_for(config->hours, today);
 
     leave = add_time(started, time->hour, time->minute);
   }
@@ -116,6 +116,16 @@ int config_hours(char* key, char* value, wtl_config* cfg) {
   return 1;
 }
 
+void log_hours(const workday_hours *h) {
+  printf("%d\n", h->tue->hour);
+  printf("[workday_hours at %p]: \n", (void*)h);
+  printf(
+    "{ sun: %s, mon: %s, tue: %s, wed: %s, thu: %s, fri: %s, sat: %s}\n",
+    str_time(h->sun), str_time(h->mon), str_time(h->tue),
+    str_time(h->wed), str_time(h->thu), str_time(h->fri), str_time(h->sat)
+  );
+}
+
 wtl_config* read_config(char* fname) {
   FILE* file = fopen(fname, "r");
 
@@ -163,6 +173,7 @@ wtl_config* read_config(char* fname) {
         if(strcmp(parser[i].key, key) == 0) {
           if(!parser[i].parser(key, value, config)) {
             fclose(file);
+            fprintf(stderr, "Could not parse %s=%s\n", key, value);
             return NULL;
           }
         }
@@ -262,8 +273,8 @@ workday_hours* read_workday_hours(FILE* file) {
   return hours;
 }
 
-wtl_time* hours_for(workday_hours* hours, time_t* time) {
-  struct tm* l_time = localtime(time);
+wtl_time* hours_for(workday_hours* hours, time_t time) {
+  struct tm* l_time = localtime(&time);
 
   wtl_time **ptrs[] = {
     &hours->sun,
@@ -388,7 +399,7 @@ wtl_time* add_time(const wtl_time* time, int hours, int minutes) {
 }
 
 char* str_time(const wtl_time* time) {
-  char* string = malloc(5 * sizeof(char));
+  char *string = malloc(5 * sizeof(char));
   sprintf(string, "%02d:%02d", time->hour, time->minute);
 
   return string;
