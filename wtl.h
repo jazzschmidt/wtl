@@ -24,6 +24,8 @@ void print_usage(void);
 
 FILE* default_cfg(void);
 
+char* default_cfg_file(void);
+
 workday_hours* read_workday_hours(FILE*);
 
 wtl_time* hours_for(workday_hours*, time_t*);

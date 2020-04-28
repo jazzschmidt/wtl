@@ -18,15 +18,6 @@ const char TIME_SEPARATOR = ':';
 
 int main(int argc, char** argv) {
   atexit(cleanup);
-  wtl_config* config = read_config("wtl.cfg");
-  assert(config->start_time == NULL);
-
-  wtl_config* config2 = read_config("wtl0.cfg");
-  assert(config2->start_time->hour == 7);
-  assert(config2->start_time->minute == 15);
-  exit(0);
-
-
 
   wtl_args* args = parse_args(argc, argv);
 
@@ -173,9 +164,14 @@ wtl_config* read_config(char* fname) {
 }
 
 FILE* default_cfg() {
+  char *fname = default_cfg_file();
+  return fopen(fname, "r");
+}
+
+char* default_cfg_file() {
   char *fname;
   asprintf(&fname, "%s/%s", getenv("HOME"), ".wtl");
-  return fopen(fname, "r");
+  return fname;
 }
 
 void time_setenv(wtl_time* start_time) {
