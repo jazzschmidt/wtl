@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
       exit(1);
     }
 
-    if(config->start_time) {
+    if(config->start_time && config->wday == l_time->tm_wday) {
       started = config->start_time;
     }
 
@@ -84,6 +84,10 @@ void print_usage() {
 int config_start_time(char* key, char* value, wtl_config* cfg) {
   if(strcmp(key, "started") == 0) {
     cfg->start_time = parse_ftime(value);
+  }
+
+  if(strcmp(key, "wday") == 0) {
+    cfg->wday = atoi(value);
   }
 
   return 1;
@@ -148,6 +152,7 @@ wtl_config* read_config(char* fname) {
 
   struct config_parser parser[] = {
     { "started", &config_start_time },
+    { "wday", &config_start_time },
     { "*", &config_hours },
     { "**", &config_hours },
     { "sun", &config_hours },

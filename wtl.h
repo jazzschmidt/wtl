@@ -16,6 +16,7 @@ typedef struct {
 typedef struct {
   workday_hours* hours;
   wtl_time* start_time;
+  int wday;
 } wtl_config;
 
 wtl_config* read_config(char*);
