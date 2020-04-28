@@ -62,8 +62,6 @@ int main(int argc, char** argv) {
       write_config(config_file, config);
     }
 
-    log_hours(config->hours);
-
     wtl_time* time = hours_for(config->hours, today);
 
     leave = add_time(started, time->hour, time->minute);
