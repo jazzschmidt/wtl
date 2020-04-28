@@ -198,53 +198,6 @@ char* time_to_string(wtl_time* t) {
   return string;
 }
 
-workday_hours* read_workday_hours(FILE* file) {
-  workday_hours* hours = malloc(sizeof(workday_hours));
-  wtl_time* no_time = parse_ftime("0");
-
-  *hours = (workday_hours)
-    { no_time, no_time, no_time, no_time, no_time, no_time, no_time };
-
-  char *line = NULL;
-  size_t linecap = 0;
-  ssize_t linelen;
-  while((linelen = getline(&line, &linecap, file)) != -1) {
-    char *key, *value;
-    if(read_kv(line, &key, &value)) {
-      wtl_time* time = parse_ftime(value);
-
-      if(*key == '*') {
-        hours->mon = time;
-        hours->tue = time;
-        hours->wed = time;
-        hours->thu = time;
-        hours->fri = time;
-
-        if(strcmp(key, "**") == 0) {
-          hours->sat = time;
-          hours->sun = time;
-        }
-      }
-
-      char *keys[] = { "sun", "mon", "tue", "wed", "thu", "fri", "sat" };
-      wtl_time **ptrs[] = {
-        &hours->sun,
-        &hours->mon, &hours->tue, &hours->wed, &hours->thu, &hours->fri,
-        &hours->sat
-      };
-
-      for(int i = 0; i < 7; ++i) {
-        if(strcmp(key, keys[i]) == 0) {
-          *ptrs[i] = time;
-          break;
-        }
-      }
-    }
-  }
-
-  return hours;
-}
-
 wtl_time* hours_for(workday_hours* hours, time_t time) {
   struct tm* l_time = localtime(&time);
 
