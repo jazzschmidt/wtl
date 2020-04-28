@@ -41,13 +41,13 @@ int main(int argc, char** argv) {
   if(args->span) { // -h argument present
     leave = add_time(started, args->span->hour, args->span->minute);
   } else { // using configuration
+    char *config_file = args->config_file;
 
-
-    if(!args->config_file) {
-      config = read_config(default_cfg_file());
-    } else {
-      config = read_config(args->config_file);
+    if(!config_file) {
+      config_file = default_cfg_file();
     }
+
+    config = read_config(args->config_file);
 
     if(config == NULL) {
       printf("Configuration could not be read!\n");
@@ -56,6 +56,10 @@ int main(int argc, char** argv) {
 
     if(config->start_time && config->wday == l_time->tm_wday) {
       started = config->start_time;
+    } else {
+      config->start_time = started;
+      config->wday = l_time->tm_wday;
+      write_config(config_file, config);
     }
 
     log_hours(config->hours);
@@ -135,6 +139,30 @@ void log_hours(const workday_hours *h) {
     str_time(h->sun), str_time(h->mon), str_time(h->tue),
     str_time(h->wed), str_time(h->thu), str_time(h->fri), str_time(h->sat)
   );
+}
+
+void write_config(char* fname, wtl_config* cfg) {
+  FILE* file = fopen(fname, "r+");
+
+  char *line = NULL;
+  size_t linecap = 0;
+  ssize_t linelen;
+  while((linelen = getline(&line, &linecap, file)) != -1) {
+    char *key, *value;
+    if(read_kv(line, &key, &value)) {
+      if(strcmp(key, "started") == 0) {
+        fseek(file, 0L - linelen * sizeof(char), SEEK_CUR);
+        fprintf(file, "started=%s\n", time_to_string(cfg->start_time));
+      }
+
+      if(strcmp(key, "wday") == 0) {
+        fseek(file, 0L - linelen * sizeof(char), SEEK_CUR);
+        fprintf(file, "wday=%d\n", cfg->wday);
+      }
+    }
+  }
+
+  fclose(file);
 }
 
 wtl_config* read_config(char* fname) {

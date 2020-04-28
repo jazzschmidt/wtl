@@ -21,6 +21,8 @@ typedef struct {
 
 wtl_config* read_config(char*);
 
+void write_config(char*, wtl_config*);
+
 void print_usage(void);
 
 char* default_cfg_file(void);
