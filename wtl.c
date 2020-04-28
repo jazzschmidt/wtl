@@ -65,6 +65,8 @@ int main(int argc, char** argv) {
 
   printf("You need to work until %s\n", str_time(leave));
   printf("Started: %s\n", str_time(started));
+
+  free(args);
 }
 
 void print_usage() {
