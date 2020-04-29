@@ -1,5 +1,2 @@
-# Ignore binary
-wtl
-
-# And html reports
-report
+# Ignore build directory
+target

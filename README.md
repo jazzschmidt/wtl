@@ -7,6 +7,13 @@ wtl [-c <config>] [<time=HH:MM>]
 wtl -h <hours> [<time=HH:MM>]
 ```
 
+## Build and Install
+To install `wtl` to `/usr/local/bin` simply invoke make:
+
+```lang-bash
+$ make && make install
+```
+
 ## Options
 When invoked without arguments, `wtl` tries to load the default configuration
 from the home directory and sets `<time>` to the current time if not already
