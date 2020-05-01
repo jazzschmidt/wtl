@@ -17,7 +17,7 @@ test:
 	@echo "####  Testing   ###"
 	@echo "###################"
 	mkdir -p $(BUILD_DIR)/test
-	$(CC) -o $(BUILD_DIR)/test/wtl-test test.c lib/munit/munit.c
+	$(CC) -o $(BUILD_DIR)/test/wtl-test -DTEST=1 test.c wtl.c lib/munit/munit.c
 	./$(BUILD_DIR)/test/wtl-test
 
 analyze:

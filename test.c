@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include "lib/munit/munit.h"
+#include "wtl.h"
 
+#ifndef TEST
+#define TEST
+#endif
 
 
 static MunitResult
@@ -11,10 +15,21 @@ sample_test(const MunitParameter params[], void* user_data_or_fuxture) {
 }
 
 
+static MunitResult
+test_strpos() {
+  char* str = "Hello, world";
+
+  munit_assert_int(strpos(str, ','), ==, 5);
+  munit_assert_int(strpos(str, 'd'), ==, 11);
+
+  return MUNIT_OK;
+}
+
 
 
 static MunitTest tests[] = {
   { "/sample-test", sample_test },
+  { "/finds char position", test_strpos },
 
   /* Mark the end of the array with an entry where the test function is NULL */
   { NULL, NULL }
