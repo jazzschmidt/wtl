@@ -2,7 +2,7 @@ CC = clang
 BUILD_DIR = target
 INSTALL_DIR = /usr/local/bin
 
-all: analyze compile
+all: test analyze compile
 
 compile:
 	@echo "###################"
@@ -11,6 +11,14 @@ compile:
 	mkdir -p $(BUILD_DIR)
 	$(CC) -o $(BUILD_DIR)/wtl wtl.c
 	@echo "\xe2\x9c\x85"
+
+test:
+	@echo "###################"
+	@echo "####  Testing   ###"
+	@echo "###################"
+	mkdir -p $(BUILD_DIR)/test
+	$(CC) -o $(BUILD_DIR)/test/wtl-test test.c lib/munit/munit.c
+	./$(BUILD_DIR)/test/wtl-test
 
 analyze:
 	@echo "###################"
@@ -23,7 +31,7 @@ analyze:
 
 install: compile
 	@echo "###################"
-	@echo "#### Installing ####"
+	@echo "#### Installing ###"
 	@echo "###################"
 	cp $(BUILD_DIR)/wtl $(INSTALL_DIR)/wtl
 	@echo "[INFO] Installed to $(INSTALL_DIR)/wtl"
