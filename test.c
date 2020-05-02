@@ -6,12 +6,14 @@
 #define TEST
 #endif
 
+static MunitResult ok() { return MUNIT_OK; }
+
 
 static MunitResult
 sample_test(const MunitParameter params[], void* user_data_or_fuxture) {
   munit_assert_int(42, ==, 42);
 
-  return MUNIT_OK;
+  return ok();
 }
 
 
@@ -25,7 +27,7 @@ test_strpos() {
   /* Not found in string = -1 */
   munit_assert_int(strpos(str, '#'), ==, -1);
 
-  return MUNIT_OK;
+  return ok();
 }
 
 
@@ -36,7 +38,7 @@ test_strsub() {
   munit_assert_string_equal(strsub(str, 0, 5), "Hello");
   munit_assert_string_equal(strsub(str, 7, 5), "World");
 
-  return MUNIT_OK;
+  return ok();
 }
 
 
