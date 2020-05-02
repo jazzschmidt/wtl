@@ -42,11 +42,22 @@ test_strsub() {
 }
 
 
+static MunitResult
+test_str_time() {
+  wtl_time t = { .hour = 8, .minute = 5 };
+
+  munit_assert_string_equal(str_time(&t), "08:05");
+
+  return ok();
+}
+
+
 
 static MunitTest tests[] = {
   { "/sample-test", sample_test },
   { "/finds char position", test_strpos },
   { "/extracts substring", test_strsub },
+  { "/formats time struct", test_str_time },
 
   /* Mark the end of the array with an entry where the test function is NULL */
   { NULL, NULL }
