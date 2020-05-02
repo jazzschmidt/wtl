@@ -22,6 +22,7 @@ test:
 		-DTEST=1 test.c wtl.c lib/munit/munit.c
 	./$(BUILD_DIR)/test/wtl-test
 	gcov -f ./*.c | ./coverage.sh
+	# TODO: Also move files, when test failed
 	mv *.gcda *.gcno *.gcov $(BUILD_DIR)/test
 
 analyze:

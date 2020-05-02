@@ -1,2 +1,7 @@
 # Ignore build directory
 target
+
+# Coverage files
+*.gcda
+*.gcno
+*.gcov
