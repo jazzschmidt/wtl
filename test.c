@@ -92,12 +92,38 @@ test_add_time() {
 }
 
 
+static MunitResult
+test_valid_time_format() {
+  int valid = 1; int invalid = 0;
+
+  struct TestData {
+    char *format; int expected;
+  };
+
+  struct TestData testData[] = {
+    { "8:15", valid },
+    { "18:5", valid },
+    { "8:1", valid },
+    { "18:15", valid },
+    { "8", valid },
+    { "8:", valid },
+    { "-7", invalid },
+  };
+
+  for(int i = 0; i < sizeof(testData) / sizeof(struct TestData); ++i) {
+    int result = valid_time_format(testData[i].format);
+    munit_assert_int(result, ==, testData[i].expected);
+  }
+}
+
+
 static MunitTest tests[] = {
   { "/sample-test", sample_test },
   { "/finds char position", test_strpos },
   { "/extracts substring", test_strsub },
   { "/formats time struct", test_str_time },
   { "/additions times", test_add_time },
+  { "/validates time formats", test_valid_time_format },
 
   /* Mark the end of the array with an entry where the test function is NULL */
   { NULL, NULL }
