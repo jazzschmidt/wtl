@@ -29,10 +29,22 @@ test_strpos() {
 }
 
 
+static MunitResult
+test_strsub() {
+  const char* str = "Hello, World";
+
+  munit_assert_string_equal(strsub(str, 0, 5), "Hello");
+  munit_assert_string_equal(strsub(str, 7, 5), "World");
+
+  return MUNIT_OK;
+}
+
+
 
 static MunitTest tests[] = {
   { "/sample-test", sample_test },
   { "/finds char position", test_strpos },
+  { "/extracts substring", test_strsub },
 
   /* Mark the end of the array with an entry where the test function is NULL */
   { NULL, NULL }
