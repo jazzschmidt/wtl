@@ -28,5 +28,6 @@ for line in ${stdin}; do
   elif [[ "${line}" = "File"* ]]; then
     echo "File: ${FILES[$((FILE++))]}"
     echo -e ${COV_LINES} | sort -rn
+    COV_LINES=""
   fi
 done
