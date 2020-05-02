@@ -36,7 +36,7 @@ test_strsub() {
   const char* str = "Hello, World";
 
   munit_assert_string_equal(strsub(str, 0, 5), "Hello");
-  munit_assert_string_equal(strsub(str, 7, 5), "World");
+  munit_assert_string_equal(strsub(str, 7, strlen(str)-1), "World");
 
   return ok();
 }
