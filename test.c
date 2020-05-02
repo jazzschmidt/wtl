@@ -62,12 +62,37 @@ test_str_time() {
 }
 
 
+static MunitResult
+test_add_time() {
+  struct TestData {
+    wtl_time time; int hours, minutes, expectedHour, expectedMinute;
+  };
+
+  struct TestData testData[] = {
+    {{ .hour = 8, .minute = 5 }, 2, 10, 10, 15},
+    {{ .hour = 10, .minute = 0 }, 10, 70, 21, 10},
+    {{ .hour = 23, .minute = 59 }, 0, 1, 0, 0},
+  };
+
+  for(int i = 0; i < sizeof(testData) / sizeof(struct TestData); ++i) {
+    struct TestData data = testData[i];
+
+    wtl_time *result = add_time(&data.time, data.hours, data.minutes);
+
+    munit_assert_int(result->hour, ==, data.expectedHour);
+    munit_assert_int(result->minute, ==, data.expectedMinute);
+  }
+
+  return ok();
+}
+
 
 static MunitTest tests[] = {
   { "/sample-test", sample_test },
   { "/finds char position", test_strpos },
   { "/extracts substring", test_strsub },
   { "/formats time struct", test_str_time },
+  { "/additions times", test_add_time },
 
   /* Mark the end of the array with an entry where the test function is NULL */
   { NULL, NULL }
