@@ -22,6 +22,9 @@ test_strpos() {
   munit_assert_int(strpos(str, ','), ==, 5);
   munit_assert_int(strpos(str, 'd'), ==, 11);
 
+  /* Not found in string = -1 */
+  munit_assert_int(strpos(str, '#'), ==, -1);
+
   return MUNIT_OK;
 }
 
