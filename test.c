@@ -44,9 +44,19 @@ test_strsub() {
 
 static MunitResult
 test_str_time() {
-  wtl_time t = { .hour = 8, .minute = 5 };
+  struct TestData {
+    wtl_time time; char* result;
+  };
 
-  munit_assert_string_equal(str_time(&t), "08:05");
+  struct TestData testData[] = {
+    {{ .hour = 8, .minute = 5 }, "08:05"},
+    {{ .hour = 10, .minute = 0 }, "10:00"},
+    {{ .hour = 23, .minute = 59 }, "23:59"},
+  };
+
+  for(int i = 0; i < sizeof(testData) / sizeof(struct TestData); ++i) {
+    munit_assert_string_equal(str_time(&testData[i].time), testData[i].result);
+  }
 
   return ok();
 }
