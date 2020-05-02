@@ -7,6 +7,9 @@
 #endif
 
 static MunitResult ok() { return MUNIT_OK; }
+static MunitResult skip() { return MUNIT_SKIP; }
+static MunitResult fail() { return MUNIT_FAIL; }
+static MunitResult error() { return MUNIT_ERROR; }
 
 
 static MunitResult
