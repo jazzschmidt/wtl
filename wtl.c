@@ -14,6 +14,7 @@ void cleanup() {
 
 const char TIME_SEPARATOR = ':';
 
+#ifndef TEST
 int main(int argc, char** argv) {
   atexit(cleanup);
 
@@ -74,6 +75,7 @@ int main(int argc, char** argv) {
   free(leave);
   free(config);
 }
+#endif
 
 void print_usage() {
   printf(

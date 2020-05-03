@@ -1,4 +1,4 @@
-# wtl - when to leave
+# wtl - when to leave ![build status](https://travis-ci.com/jazzschmidt/wtl.svg?branch=master "Build status")
 Tells when to leave work.
 
 ## Synposis
