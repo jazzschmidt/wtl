@@ -18,6 +18,7 @@ test:
 	@echo "###################"
 	mkdir -p $(BUILD_DIR)/test
 	rm -rf $(BUILD_DIR)/test/*
+	rm -f ./*.gcda ./*.gcno ./*.gcov
 	GCOV_PREFIX=$(BUILD_DIR)/test; $(CC) --coverage -g -O0 \
 		-o $(BUILD_DIR)/test/wtl-test \
 		-DTEST=1 test.c wtl.c lib/munit/munit.c
