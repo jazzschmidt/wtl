@@ -108,12 +108,38 @@ test_valid_time_format() {
     { "8", valid },
     { "8:", valid },
     { "-7", invalid },
+    { "100.", invalid },
   };
 
   for(int i = 0; i < sizeof(testData) / sizeof(struct TestData); ++i) {
     int result = valid_time_format(testData[i].format);
     munit_assert_int(result, ==, testData[i].expected);
   }
+
+  return ok();
+}
+
+
+static MunitResult
+test_time_to_string() {
+  struct TestData {
+    wtl_time time; char *expected;
+  };
+
+  struct TestData testData[] = {
+    {{ .hour = 8, .minute = 5 }, "08:05"},
+    {{ .hour = 10, .minute = 0 }, "10:00"},
+    {{ .hour = 23, .minute = 59 }, "23:59"}
+  };
+
+  for(int i = 0; i < sizeof(testData) / sizeof(struct TestData); ++i) {
+    char *result = time_to_string(&testData[i].time);
+    char *expected = testData[i].expected;
+
+    munit_assert_string_equal(result, expected);
+  }
+
+  return ok();
 }
 
 
@@ -124,6 +150,7 @@ static MunitTest tests[] = {
   { "/formats time struct", test_str_time },
   { "/additions times", test_add_time },
   { "/validates time formats", test_valid_time_format },
+  { "/coverts time to string", test_time_to_string },
 
   /* Mark the end of the array with an entry where the test function is NULL */
   { NULL, NULL }
