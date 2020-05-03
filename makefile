@@ -2,7 +2,7 @@ CC = clang
 BUILD_DIR = target
 INSTALL_DIR = /usr/local/bin
 
-all: test analyze compile
+all: test coverage analyze compile
 
 compile:
 	@echo "###################"
@@ -17,13 +17,17 @@ test:
 	@echo "####  Testing   ###"
 	@echo "###################"
 	mkdir -p $(BUILD_DIR)/test
+	rm -rf $(BUILD_DIR)/test/*
 	GCOV_PREFIX=$(BUILD_DIR)/test; $(CC) --coverage -g -O0 \
 		-o $(BUILD_DIR)/test/wtl-test \
 		-DTEST=1 test.c wtl.c lib/munit/munit.c
 	./$(BUILD_DIR)/test/wtl-test --show-stderr
+
+coverage:
+	@echo "###################"
+	@echo "####  Coverage  ###"
+	@echo "###################"
 	gcov -f ./*.c | ./coverage.sh
-	# TODO: Also move files, when test failed
-	mv *.gcda *.gcno *.gcov $(BUILD_DIR)/test
 
 analyze:
 	@echo "###################"
