@@ -144,6 +144,34 @@ test_time_to_string() {
 
 
 static MunitResult
+test_parse_ftime() {
+  struct TestData {
+    char *format; int hour, minute;
+  };
+
+  struct TestData testData[] = {
+    { "8:15", 8, 15 },
+    { "18:5", 18, 5 },
+    { "8:1", 8, 1 },
+    { "18:15", 18, 15 },
+    { "8", 8, 0 },
+    { "8:", 8, 0 }
+  };
+
+  for(int i = 0; i < sizeof(testData) / sizeof(struct TestData); ++i) {
+    wtl_time *t = parse_ftime(testData[i].format);
+    munit_assert_int(t->hour, ==, testData[i].hour);
+    munit_assert_int(t->minute, ==, testData[i].minute);
+  }
+
+  munit_assert_null(parse_ftime("-7"));
+  munit_assert_null(parse_ftime("74:83"));
+
+  return ok();
+}
+
+
+static MunitResult
 test_hours_for() {
   wtl_time no_work = { 0, 0 };
   wtl_time work_mon = { 10, 0 };
@@ -186,7 +214,8 @@ static MunitTest tests[] = {
   { "/additions times", test_add_time },
   { "/validates time formats", test_valid_time_format },
   { "/coverts time to string", test_time_to_string },
-  { "gets hours for a configuration", test_hours_for },
+  { "/parses formatted time", test_parse_ftime },
+  { "/gets hours for a configuration", test_hours_for },
 
   /* Mark the end of the array with an entry where the test function is NULL */
   { NULL, NULL }
