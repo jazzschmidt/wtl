@@ -143,6 +143,41 @@ test_time_to_string() {
 }
 
 
+static MunitResult
+test_hours_for() {
+  wtl_time no_work = { 0, 0 };
+  wtl_time work_mon = { 10, 0 };
+  wtl_time work_wed = { 6, 30 };
+  wtl_time work_fri = { 8, 5 };
+
+  workday_hours hours = {
+    &no_work, &work_mon, &no_work, &work_wed, &no_work, &work_fri, &no_work
+  };
+
+  long time_sun = 1586649600;
+  long time_mon = 1586736000;
+  long time_wed = 1586908800;
+  long time_fri = 1587081600;
+
+  wtl_time *sun_hours = hours_for(&hours, time_sun);
+  munit_assert_int(sun_hours->hour, ==, 0);
+  munit_assert_int(sun_hours->minute, ==, 0);
+
+  wtl_time *mon_hours = hours_for(&hours, time_mon);
+  munit_assert_int(mon_hours->hour, ==, 10);
+  munit_assert_int(mon_hours->minute, ==, 0);
+
+  wtl_time *tue_hours = hours_for(&hours, time_wed);
+  munit_assert_int(tue_hours->hour, ==, 6);
+  munit_assert_int(tue_hours->minute, ==, 30);
+
+  wtl_time *fri_hours = hours_for(&hours, time_fri);
+  munit_assert_int(fri_hours->hour, ==, 8);
+  munit_assert_int(fri_hours->minute, ==, 5);
+
+  return ok();
+}
+
 static MunitTest tests[] = {
   { "/sample-test", sample_test },
   { "/finds char position", test_strpos },
@@ -151,6 +186,7 @@ static MunitTest tests[] = {
   { "/additions times", test_add_time },
   { "/validates time formats", test_valid_time_format },
   { "/coverts time to string", test_time_to_string },
+  { "gets hours for a configuration", test_hours_for },
 
   /* Mark the end of the array with an entry where the test function is NULL */
   { NULL, NULL }
