@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "lib/munit/munit.h"
 #include "wtl.h"
+#include "config.h"
 
 #ifndef TEST
 #define TEST
@@ -206,6 +207,49 @@ test_hours_for() {
   return ok();
 }
 
+
+typedef struct {
+  char *name; int num; float fnum;
+} TestConfiguration;
+
+void __nameParser(const char *key, const char *value, const void *config) {
+  TestConfiguration *cfg = (TestConfiguration *)config;
+  asprintf(&(cfg->name), "%s", value);
+}
+
+void __numParser(const char *key, const char *value, const void *config) {
+  TestConfiguration *cfg = (TestConfiguration *)config;
+  cfg->num = (int)strtol(value, NULL, 10);
+}
+
+void __fnumParser(const char *key, const char *value, const void *config) {
+  TestConfiguration *cfg = (TestConfiguration *)config;
+  cfg->fnum = strtof(value, NULL);
+}
+
+static MunitResult
+testParseConfig() {
+  char *content =
+    "name=test\n"
+    "num=42\n"
+    "fnum=4.5";
+
+  TestConfiguration config;
+
+  registerParser("name", &__nameParser);
+  registerParser("num", &__numParser);
+  registerParser("fnum", &__fnumParser);
+
+  parseConfig(content, &config);
+
+  munit_assert_string_equal(config.name, "test");
+  munit_assert_int(config.num, ==, 42);
+  munit_assert_float(config.fnum, ==, 4.5);
+
+  return ok();
+}
+
+
 static MunitTest tests[] = {
   { "/sample-test", sample_test },
   { "/finds char position", test_strpos },
@@ -216,12 +260,14 @@ static MunitTest tests[] = {
   { "/coverts time to string", test_time_to_string },
   { "/parses formatted time", test_parse_ftime },
   { "/gets hours for a configuration", test_hours_for },
+  /* Configuration */
+  { "/cfg/parses a configuration", testParseConfig },
 
   /* Mark the end of the array with an entry where the test function is NULL */
   { NULL, NULL }
 };
 
-static const MunitSuite suite = { "/wtl-tests", tests };
+static const MunitSuite suite = { "/main", tests };
 
 int main(int argc, char* argv[]) {
   return munit_suite_main(&suite, NULL, argc, argv);
