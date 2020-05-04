@@ -42,11 +42,6 @@ static Parser getParser(char *key) {
 }
 
 void parseConfig(const char *content, const void *config) {
-  struct TestConfiguration {
-    char *name; int num; float fnum;
-  };
-
-  struct TestConfiguration *cfg = (struct TestConfiguration *)config;
   char *fields[] = {
     "name", "num", "fnum"
   };
@@ -62,7 +57,7 @@ void parseConfig(const char *content, const void *config) {
     if(!parser) {
       fprintf(stderr, ">> No Parser!\n");
     } else {
-      parser(field, value, cfg);
+      parser(field, value, config);
     }
   }
 }
