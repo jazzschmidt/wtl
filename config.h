@@ -1,6 +1,6 @@
 
 typedef void (*ConfigReader)(const char *key, const char *value, const void *config);
-typedef void (*ConfigWriter)(const char *key, const void *config);
+typedef char *(*ConfigWriter)(const char *key, const void *config);
 
 void registerParser(const char *key, ConfigReader reader, ConfigWriter writer);
 

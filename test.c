@@ -213,17 +213,36 @@ typedef struct {
   char *name; int num; float fnum;
 } TestConfiguration;
 
-void __nameParser(const char *key, const char *value, const void *config) {
+void __nameReader(const char *key, const char *value, const void *config) {
   TestConfiguration *cfg = (TestConfiguration *)config;
   asprintf(&(cfg->name), "%s", value);
 }
 
-void __numParser(const char *key, const char *value, const void *config) {
+char *__configWriter(const char *key, const void *config) {
+  TestConfiguration *cfg = (TestConfiguration *)config;
+  char *value = NULL;
+
+  if(strcmp(key, "name") == 0) {
+    value = strdup(cfg->name);
+  }
+
+  if(strcmp(key, "num") == 0) {
+    asprintf(&value, "%d", cfg->num);
+  }
+
+  if(strcmp(key, "fnum") == 0) {
+    asprintf(&value, "%.1f", cfg->fnum);
+  }
+
+  return value;
+}
+
+void __numReader(const char *key, const char *value, const void *config) {
   TestConfiguration *cfg = (TestConfiguration *)config;
   cfg->num = (int)strtol(value, NULL, 10);
 }
 
-void __fnumParser(const char *key, const char *value, const void *config) {
+void __fnumReader(const char *key, const char *value, const void *config) {
   TestConfiguration *cfg = (TestConfiguration *)config;
   cfg->fnum = strtof(value, NULL);
 }
@@ -237,9 +256,9 @@ testParseConfig() {
 
   TestConfiguration config;
 
-  registerParser("name", &__nameParser, NULL);
-  registerParser("num", &__numParser, NULL);
-  registerParser("fnum", &__fnumParser, NULL);
+  registerParser("name", &__nameReader, &__configWriter);
+  registerParser("num", &__numReader, &__configWriter);
+  registerParser("fnum", &__fnumReader, &__configWriter);
 
   parseConfig(content, &config);
 
@@ -254,15 +273,23 @@ static MunitResult
 testParseConfigFile() {
   TestConfiguration config;
 
-  registerParser("name", &__nameParser, NULL);
-  registerParser("num", &__numParser, NULL);
-  registerParser("fnum", &__fnumParser, NULL);
+  registerParser("name", &__nameReader, &__configWriter);
+  registerParser("num", &__numReader, &__configWriter);
+  registerParser("fnum", &__fnumReader, &__configWriter);
 
   parseConfigFile("test-parse-config.cfg", &config);
 
   munit_assert_string_equal(config.name, "Hello world");
   munit_assert_int(config.num, ==, 42);
   munit_assert_float(config.fnum, ==, .9);
+
+  config.name = "TEST";
+  writeConfigFile("test-parse-config.cfg", &config);
+  parseConfigFile("test-parse-config.cfg", &config);
+  munit_assert_string_equal(config.name, "TEST");
+
+  config.name = "Hello world";
+  writeConfigFile("test-parse-config.cfg", &config);
 
   return ok();
 }

@@ -51,6 +51,12 @@ static void stripNewline(char *line);
 
 static FILE *requireFile(char *file, char *mode);
 
+static KeyParser *getParser(const char *key);
+
+static ConfigReader getReaderFor(const char *key);
+
+static ConfigWriter getWriterFor(const char *key);
+
 /* Removes all parsers. Will be called automatically */
 static void clearParser(void);
 
@@ -102,7 +108,7 @@ void parseConfig(const char *content, const void *config) {
     parseConfigLine(line, config);
   }
 
-  clearParser();
+  free(src);
 }
 
 
@@ -115,13 +121,70 @@ void parseConfigFile(char *file, const void *config) {
   while((linelen = getline(&line, &linecap, f)) != -1) {
     parseConfigLine(line, config);
   }
-
-  clearParser();
 }
 
 
 void writeConfigFile(char *file, const void *config) {
+  FILE *f = requireFile(file, "r+");
 
+  char *updated_file_content = "";
+  char **keys_updated = NULL;
+  int update_count = 0;
+
+  char *line = NULL;
+  size_t linecap = 0;
+  ssize_t linelen;
+  while((linelen = getline(&line, &linecap, f)) != -1) {
+    char *key, *value;
+    char *newline;
+    strkeyvalue(line, &key, &value);
+
+    KeyParser *parser = getParser(key);
+    if(parser != NULL) {
+      ConfigWriter writer = getWriterFor(key);
+      char *value_updated = writer(key, config);
+
+      void *ptr = realloc(keys_updated, (update_count + 1) * sizeof((void *)0));
+      if(ptr == NULL) {
+        return;
+      }
+
+      keys_updated = ptr;
+      *(keys_updated + update_count) = strdup(key);
+      update_count++;
+
+      asprintf(&newline, "%s=%s\n", key, value_updated);
+    } else {
+      asprintf(&newline, "%s", line);
+    }
+
+    asprintf(&updated_file_content, "%s%s", updated_file_content, newline);
+  }
+
+  for(int i = 0; i < registeredParsers; ++i) {
+    KeyParser *parser = *(parserList + i);
+    const char *key = parser->key;
+    int is_updated = 0;
+
+    for(int j = 0; j < update_count; ++j) {
+      if(strcmp(*(keys_updated + j), key) == 0) {
+        is_updated = 1;
+        break;
+      }
+    }
+
+    if(!is_updated) {
+      ConfigWriter writer = getWriterFor(key);
+      char *value_updated = writer(key, config);
+
+      asprintf(&updated_file_content, "%s%s=%s\n", updated_file_content, key, value_updated);
+    }
+  }
+
+  fclose(f);
+  f = fopen(file, "w");
+  fputs(updated_file_content, f);
+  fclose(f);
 }
 
 /* --------------------- Internal routines --------------------- */
@@ -132,7 +195,7 @@ void writeConfigFile(char *file, const void *config) {
  * Returns the parser for a specific key or `NULL` if no parser is present for
  * the given key.
  */
-static KeyParser *getParser(char *key) {
+static KeyParser *getParser(const char *key) {
   KeyParser *parser = NULL;
 
   for(int i = 0; i < registeredParsers; ++i) {
@@ -145,11 +208,11 @@ static KeyParser *getParser(char *key) {
  return NULL;
 }
 
-static ConfigReader getReaderFor(char *key) {
+static ConfigReader getReaderFor(const char *key) {
   return (ConfigReader)(getParser(key)->reader);
 }
 
-static ConfigWriter getWriterFor(char *key) {
+static ConfigWriter getWriterFor(const char *key) {
   return (ConfigWriter)(getParser(key)->writer);
 }
 
@@ -163,12 +226,13 @@ static void parseConfigLine(const char *line, const void *config) {
   char *key, *value;
   strkeyvalue(line, &key, &value);
 
-  stripNewline(value);
-
   ConfigReader reader;
   if((reader = getReaderFor(key))) {
     reader(key, value, config);
   }
+
+  free(key);
+  free(value);
 }
 
 
@@ -182,6 +246,8 @@ static void strkeyvalue(const char *line, char **key, char **value) {
 
 	*key = strndup(line, index);
 	*value = strdup(++assignment);
+
+  stripNewline(*value);
 }
 
 
