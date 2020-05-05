@@ -71,5 +71,5 @@ void strkeyvalue(const char *line, char **key, char **value) {
 
 	*value = malloc(sizeof(char) * (strlen(assignment++)));
 	strncpy(*value, assignment, strlen(assignment));
-  *(*value + strlen(assignment)) = '\0';
+  *(*value + strlen(*value)) = '\0';
 }
