@@ -27,11 +27,13 @@
 
 /* Links a parser function to a key of the fonfiguration */
 typedef struct {
-  const char *key; Parser parser;
-} ParserKeyLink;
+  const char *key;
+  ConfigReader reader;
+  ConfigWriter writer;
+} KeyParser;
 
 /* List of registered parser functions */
-static ParserKeyLink **parserList = NULL;
+static KeyParser **parserList = NULL;
 static int registeredParsers = 0;
 
 
@@ -59,7 +61,7 @@ static void clearParser(void);
  * key: which configuration key the parser will be linked to
  * parser: applies the value to the configuration
  */
-void registerParser(const char *key, Parser parser) {
+void registerParser(const char *key, ConfigReader reader, ConfigWriter writer) {
   void *ptr = realloc(parserList, (registeredParsers + 1) * sizeof((void *)0));
   if(ptr == NULL) {
     return;
@@ -72,9 +74,9 @@ void registerParser(const char *key, Parser parser) {
 
   parserList = ptr;
 
-  ParserKeyLink *link = malloc(sizeof(ParserKeyLink));
-  *link = (ParserKeyLink){
-    .key = key, .parser = parser
+  KeyParser *link = malloc(sizeof(KeyParser));
+  *link = (KeyParser){
+    .key = key, .reader = reader, .writer = writer
   };
 
   *(parserList + registeredParsers) = link;
@@ -113,6 +115,11 @@ void parseConfigFile(FILE *file, const void *config) {
   clearParser();
 }
 
+
+void writeConfigFile(FILE *file, const void *config) {
+
+}
+
 /* --------------------- Internal routines --------------------- */
 
 
@@ -121,16 +128,25 @@ void parseConfigFile(FILE *file, const void *config) {
  * Returns the parser for a specific key or `NULL` if no parser is present for
  * the given key.
  */
-static Parser getParser(char *key) {
-  ParserKeyLink *link = NULL;
-  for(int i = 0; i < registeredParsers; ++i) {
-    link = *(parserList + i);
-    if(strcmp(link->key, key) == 0) {
-      return link->parser;
-    }
-  }
+static KeyParser *getParser(char *key) {
+  KeyParser *parser = NULL;
 
-  return NULL;
+  for(int i = 0; i < registeredParsers; ++i) {
+    parser = *(parserList + i);
+    if(strcmp(parser->key, key) == 0) {
+      return parser;
+    }
+ }
+
+ return NULL;
+}
+
+static ConfigReader getReaderFor(char *key) {
+  return (ConfigReader)(getParser(key)->reader);
+}
+
+static ConfigWriter getWriterFor(char *key) {
+  return (ConfigWriter)(getParser(key)->writer);
 }
 
 
@@ -145,9 +161,9 @@ static void parseConfigLine(const char *line, const void *config) {
 
   stripNewline(value);
 
-  Parser parser;
-  if((parser = getParser(key))) {
-    parser(key, value, config);
+  ConfigReader reader;
+  if((reader = getReaderFor(key))) {
+    reader(key, value, config);
   }
 }
 
@@ -180,8 +196,8 @@ static void stripNewline(char *line) {
  */
 static void clearParser(void) {
   for(int i = 0; i < registeredParsers; ++i) {
-    ParserKeyLink *link = *(parserList + i);
-    free(link);
+    KeyParser *parser = *(parserList + i);
+    free(parser);
   }
 
   registeredParsers = 0;

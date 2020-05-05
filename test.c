@@ -237,9 +237,9 @@ testParseConfig() {
 
   TestConfiguration config;
 
-  registerParser("name", &__nameParser);
-  registerParser("num", &__numParser);
-  registerParser("fnum", &__fnumParser);
+  registerParser("name", &__nameParser, NULL);
+  registerParser("num", &__numParser, NULL);
+  registerParser("fnum", &__fnumParser, NULL);
 
   parseConfig(content, &config);
 
@@ -260,9 +260,9 @@ testParseConfigFile() {
 
   TestConfiguration config;
 
-  registerParser("name", &__nameParser);
-  registerParser("num", &__numParser);
-  registerParser("fnum", &__fnumParser);
+  registerParser("name", &__nameParser, NULL);
+  registerParser("num", &__numParser, NULL);
+  registerParser("fnum", &__fnumParser, NULL);
 
   parseConfigFile(file, &config);
 
