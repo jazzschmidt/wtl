@@ -24,6 +24,7 @@
 
 /* --------------------- Global variables --------------------- */
 
+
 /* Links a parser function to a key of the fonfiguration */
 typedef struct {
   const char *key; Parser parser;
@@ -78,9 +79,6 @@ void registerParser(const char *key, Parser parser) {
 }
 
 
-/* --------------------- Internal routines --------------------- */
-
-
 /* Function: parseConfig
  * ---------------------
  * Parses a multi-line string and applies the values to the configuration
@@ -99,6 +97,9 @@ void parseConfig(const char *content, const void *config) {
 
   clearParser();
 }
+
+
+/* --------------------- Internal routines --------------------- */
 
 
 /* Function: getParser
