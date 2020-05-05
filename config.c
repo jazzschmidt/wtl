@@ -133,14 +133,9 @@ static void parseConfigLine(const char *line, const void *config) {
  * Splits the string `line` into its key and value.
  */
 static void strkeyvalue(const char *line, char **key, char **value) {
-	char *assignment = index(line, '=');
-	int index = strlen(line) - strlen(assignment);
+	const char *assignment = index(line, '=');
+	const int index = strlen(line) - strlen(assignment);
 
-	*key = malloc(sizeof(char) * (index + 1));
-	strncpy(*key, line, index);
-  *(*key + index) = '\0';
-
-	*value = malloc(sizeof(char) * (strlen(assignment++)));
-	strncpy(*value, assignment, strlen(assignment));
-  *(*value + strlen(*value)) = '\0';
+	*key = strndup(line, index);
+	*value = strdup(++assignment);
 }
