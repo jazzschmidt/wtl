@@ -44,6 +44,9 @@ static void parseConfigLine(const char *line, const void *config);
 /* Retrieves both the key and the value of a string */
 static void strkeyvalue(const char *line, char **key, char **value);
 
+/* Removes trailing new line */
+static void stripNewline(char *line);
+
 /* Removes all parsers. Will be called automatically */
 static void clearParser(void);
 
@@ -99,6 +102,17 @@ void parseConfig(const char *content, const void *config) {
 }
 
 
+void parseConfigFile(FILE *file, const void *config) {
+  char *line = NULL;
+  size_t linecap = 0;
+  ssize_t linelen;
+  while((linelen = getline(&line, &linecap, file)) != -1) {
+    parseConfigLine(line, config);
+  }
+
+  clearParser();
+}
+
 /* --------------------- Internal routines --------------------- */
 
 
@@ -129,6 +143,8 @@ static void parseConfigLine(const char *line, const void *config) {
   char *key, *value;
   strkeyvalue(line, &key, &value);
 
+  stripNewline(value);
+
   Parser parser;
   if((parser = getParser(key))) {
     parser(key, value, config);
@@ -146,6 +162,15 @@ static void strkeyvalue(const char *line, char **key, char **value) {
 
 	*key = strndup(line, index);
 	*value = strdup(++assignment);
+}
+
+
+static void stripNewline(char *line) {
+  char *last = line + strlen(line)-1;
+
+  if(*last == '\n') {
+    *last = '\0';
+  }
 }
 
 

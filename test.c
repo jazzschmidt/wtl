@@ -250,14 +250,32 @@ testParseConfig() {
   return ok();
 }
 
+static MunitResult
+testParseConfigFile() {
+  FILE *file = fopen("test-parse-config.cfg", "r");
+  if(file == NULL) {
+    perror(NULL);
+    return error();
+  }
+
+  TestConfiguration config;
+
+  registerParser("name", &__nameParser);
+  registerParser("num", &__numParser);
+  registerParser("fnum", &__fnumParser);
+
+  parseConfigFile(file, &config);
+
+  munit_assert_string_equal(config.name, "Hello world");
+  munit_assert_int(config.num, ==, 42);
+  munit_assert_float(config.fnum, ==, .9);
+
+  return ok();
+}
+
 
 static MunitResult
 testIsValidTimeFormat() {
-  // time_t today = time(NULL);
-  // char *time_str = NULL;
-  //
-  // asprintf(&time_str, "%ld", today);
-
   const char *valid[] = {
     "08:15", "08:5", "8:15", "8:5", "8"
   };
@@ -374,6 +392,7 @@ static MunitTest tests[] = {
   { "/gets hours for a configuration", test_hours_for },
   /* Configuration */
   { "/cfg/parses a configuration", testParseConfig },
+  { "/cfg/parses a configuration file", testParseConfigFile },
   /* Time formatting */
   { "/time/validates a time argument", testIsValidTimeFormat },
   { "/time/creates from format", testTimeFromFormat },
