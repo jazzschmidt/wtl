@@ -49,6 +49,8 @@ static void strkeyvalue(const char *line, char **key, char **value);
 /* Removes trailing new line */
 static void stripNewline(char *line);
 
+static FILE *requireFile(char *file, char *mode);
+
 /* Removes all parsers. Will be called automatically */
 static void clearParser(void);
 
@@ -104,11 +106,13 @@ void parseConfig(const char *content, const void *config) {
 }
 
 
-void parseConfigFile(FILE *file, const void *config) {
+void parseConfigFile(char *file, const void *config) {
+  FILE *f = requireFile(file, "r");
+
   char *line = NULL;
   size_t linecap = 0;
   ssize_t linelen;
-  while((linelen = getline(&line, &linecap, file)) != -1) {
+  while((linelen = getline(&line, &linecap, f)) != -1) {
     parseConfigLine(line, config);
   }
 
@@ -116,7 +120,7 @@ void parseConfigFile(FILE *file, const void *config) {
 }
 
 
-void writeConfigFile(FILE *file, const void *config) {
+void writeConfigFile(char *file, const void *config) {
 
 }
 
@@ -201,4 +205,15 @@ static void clearParser(void) {
   }
 
   registeredParsers = 0;
+}
+
+static FILE *requireFile(char *file, char *mode) {
+  FILE *f = fopen(file, mode);
+
+  if(f == NULL) {
+    perror(NULL);
+    exit(1);
+  }
+
+  return f;
 }

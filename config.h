@@ -6,6 +6,6 @@ void registerParser(const char *key, ConfigReader reader, ConfigWriter writer);
 
 void parseConfig(const char *content, const void *config);
 
-void parseConfigFile(FILE *file, const void *config);
+void parseConfigFile(char *file, const void *config);
 
-void writeConfigFile(FILE *file, const void *config);
+void writeConfigFile(char *file, const void *config);

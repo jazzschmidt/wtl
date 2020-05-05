@@ -252,19 +252,13 @@ testParseConfig() {
 
 static MunitResult
 testParseConfigFile() {
-  FILE *file = fopen("test-parse-config.cfg", "r");
-  if(file == NULL) {
-    perror(NULL);
-    return error();
-  }
-
   TestConfiguration config;
 
   registerParser("name", &__nameParser, NULL);
   registerParser("num", &__numParser, NULL);
   registerParser("fnum", &__fnumParser, NULL);
 
-  parseConfigFile(file, &config);
+  parseConfigFile("test-parse-config.cfg", &config);
 
   munit_assert_string_equal(config.name, "Hello world");
   munit_assert_int(config.num, ==, 42);
