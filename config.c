@@ -11,6 +11,8 @@ static ParserKeyLink **parserList = NULL;
 static int registeredParsers = 0;
 
 
+void strkeyvalue(const char *line, char **key, char **value);
+
 void registerParser(const char *key, Parser parser) {
   void *ptr = realloc(parserList, (registeredParsers + 1) * sizeof((void *)0));
   if(ptr == NULL) {
@@ -41,23 +43,33 @@ static Parser getParser(char *key) {
   return NULL;
 }
 
+void parseConfigLine(const char *line, const void *config);
+
 void parseConfig(const char *content, const void *config) {
-  char *fields[] = {
-    "name", "num", "fnum"
-  };
-  char *values[] = {
-    "test", "42", "4.5"
-  };
+  parseConfigLine("name=test", config);
+  parseConfigLine("num=42", config);
+  parseConfigLine("fnum=4.5", config);
+}
 
-  for(int i = 0; i < 3; ++i) {
-    char *field = fields[i];
-    char *value = values[i];
-    Parser parser = getParser(field);
+void parseConfigLine(const char *line, const void *config) {
+  char *key, *value;
+  strkeyvalue(line, &key, &value);
 
-    if(!parser) {
-      fprintf(stderr, ">> No Parser!\n");
-    } else {
-      parser(field, value, config);
-    }
+  Parser parser;
+  if((parser = getParser(key))) {
+    parser(key, value, config);
   }
+}
+
+void strkeyvalue(const char *line, char **key, char **value) {
+	char *assignment = index(line, '=');
+	int index = strlen(line) - strlen(assignment);
+
+	*key = malloc(sizeof(char) * (index + 1));
+	strncpy(*key, line, index);
+  *(*key + index) = '\0';
+
+	*value = malloc(sizeof(char) * (strlen(assignment++)));
+	strncpy(*value, assignment, strlen(assignment));
+  *(*value + strlen(assignment)) = '\0';
 }
