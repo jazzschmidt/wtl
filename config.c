@@ -46,9 +46,11 @@ static Parser getParser(char *key) {
 void parseConfigLine(const char *line, const void *config);
 
 void parseConfig(const char *content, const void *config) {
-  parseConfigLine("name=test", config);
-  parseConfigLine("num=42", config);
-  parseConfigLine("fnum=4.5", config);
+  char *src = strdup(content);
+
+  for (char *line = strtok(src, "\n"); line != NULL; line = strtok(NULL, "\n")) {
+    parseConfigLine(line, config);
+  }
 }
 
 void parseConfigLine(const char *line, const void *config) {
