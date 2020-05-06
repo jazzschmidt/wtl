@@ -21,7 +21,7 @@ test:
 	rm -f ./*.gcda ./*.gcno ./*.gcov
 	GCOV_PREFIX=$(BUILD_DIR)/test; $(CC) --coverage -g -O0 \
 		-o $(BUILD_DIR)/test/wtl-test \
-		-DTEST=1 test.c wtl.c config.c lib/munit/munit.c
+		-DTEST=1 test.c wtl.c config.c timeformat.c lib/munit/munit.c
 	./$(BUILD_DIR)/test/wtl-test --show-stderr
 
 coverage:

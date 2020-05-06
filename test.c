@@ -1,7 +1,9 @@
 #include <stdio.h>
+#include <time.h>
 #include "lib/munit/munit.h"
 #include "wtl.h"
 #include "config.h"
+#include "timeformat.h"
 
 #ifndef TEST
 #define TEST
@@ -143,7 +145,6 @@ test_time_to_string() {
   return ok();
 }
 
-
 static MunitResult
 test_parse_ftime() {
   struct TestData {
@@ -250,6 +251,44 @@ testParseConfig() {
 }
 
 
+static MunitResult
+testIsValidTimeFormat() {
+  // time_t today = time(NULL);
+  // char *time_str = NULL;
+  //
+  // asprintf(&time_str, "%ld", today);
+
+  const char *valid[] = {
+    "08:15", "08:5", "8:15", "8:5", "8"
+  };
+
+  const char *invalid[] = {
+    "invalid", "-1", "8:105", "800:5", "123456789"
+  };
+
+  for(int i = 0; i < sizeof(valid) / sizeof(char *); ++i) {
+    int result = isTimeFormat(valid[i]);
+
+    if(!result) {
+      munit_logf(MUNIT_LOG_WARNING, "Format should be valid: %s\n", valid[i]);
+    }
+
+    munit_assert_true(result);
+  }
+
+  for(int i = 0; i < sizeof(invalid) / sizeof(char *); ++i) {
+    int result = isTimeFormat(invalid[i]);
+
+    if(result) {
+      munit_logf(MUNIT_LOG_WARNING, "Format should be invalid: %s\n", invalid[i]);
+    }
+
+    munit_assert_false(result);
+  }
+
+  return ok();
+}
+
 static MunitTest tests[] = {
   { "/sample-test", sample_test },
   { "/finds char position", test_strpos },
@@ -262,6 +301,8 @@ static MunitTest tests[] = {
   { "/gets hours for a configuration", test_hours_for },
   /* Configuration */
   { "/cfg/parses a configuration", testParseConfig },
+  /* Time formatting */
+  { "/time/validates a time argument", testIsValidTimeFormat },
 
   /* Mark the end of the array with an entry where the test function is NULL */
   { NULL, NULL }
