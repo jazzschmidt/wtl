@@ -24,7 +24,6 @@
 
 /* --------------------- Global variables --------------------- */
 
-
 /* Links a parser function to a key of the fonfiguration */
 typedef struct {
   const char *key; Parser parser;
@@ -44,9 +43,10 @@ static void parseConfigLine(const char *line, const void *config);
 /* Retrieves both the key and the value of a string */
 static void strkeyvalue(const char *line, char **key, char **value);
 
+/* Removes all parsers. Will be called automatically */
+static void clearParser(void);
 
 /* --------------------- Implementation --------------------- */
-
 
 /* Function: registerParser
  * ------------------------
@@ -59,6 +59,11 @@ void registerParser(const char *key, Parser parser) {
   void *ptr = realloc(parserList, (registeredParsers + 1) * sizeof((void *)0));
   if(ptr == NULL) {
     return;
+  }
+
+  /* Frees all parsers on exit */
+  if(registeredParsers == 0) {
+    atexit(clearParser);
   }
 
   parserList = ptr;
@@ -91,6 +96,8 @@ void parseConfig(const char *content, const void *config) {
   for (char *line = strtok(src, "\n"); line != NULL; line = strtok(NULL, "\n")) {
     parseConfigLine(line, config);
   }
+
+  clearParser();
 }
 
 
@@ -138,4 +145,18 @@ static void strkeyvalue(const char *line, char **key, char **value) {
 
 	*key = strndup(line, index);
 	*value = strdup(++assignment);
+}
+
+
+/* Function: clearParser
+ * ---------------------
+ * Frees all registered parsers
+ */
+static void clearParser(void) {
+  for(int i = 0; i < registeredParsers; ++i) {
+    ParserKeyLink *link = *(parserList + i);
+    free(link);
+  }
+
+  registeredParsers = 0;
 }
