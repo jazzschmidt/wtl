@@ -52,5 +52,10 @@ time_t timeFromFormat(const char *format) {
 
 
 char *formatTime(time_t timestamp) {
-  return 0;
+  struct tm *local_time = localtime(&timestamp);
+  char *format = NULL;
+
+  asprintf(&format, "%02d:%02d", local_time->tm_hour, local_time->tm_min);
+
+  return format;
 }

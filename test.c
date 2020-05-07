@@ -317,6 +317,26 @@ testTimeFromFormat() {
   return ok();
 }
 
+static MunitResult
+testFormatsTime() {
+  struct TestData {
+    int timestamp; char *expected;
+  };
+
+  struct TestData testData[] = {
+    {1318420800, "14:00"},
+    {1318407000, "10:10"}
+  };
+
+  for(int i = 0; i < sizeof(testData) / sizeof(struct TestData); ++i) {
+    struct TestData data = testData[i];
+    char *result = formatTime(data.timestamp);
+    munit_assert_string_equal(result, data.expected);
+  }
+
+  return ok();
+}
+
 static MunitTest tests[] = {
   { "/sample-test", sample_test },
   { "/finds char position", test_strpos },
@@ -332,6 +352,7 @@ static MunitTest tests[] = {
   /* Time formatting */
   { "/time/validates a time argument", testIsValidTimeFormat },
   { "/time/creates from format", testTimeFromFormat },
+  { "/time/formats timestamp to time", testFormatsTime },
 
   /* Mark the end of the array with an entry where the test function is NULL */
   { NULL, NULL }
