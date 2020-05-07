@@ -58,3 +58,4 @@ uninstall:
 
 clean:
 	rm -rf $(BUILD_DIR)
+	rm -f ./*.gcda ./*.gcno
