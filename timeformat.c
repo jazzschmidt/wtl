@@ -104,16 +104,18 @@ char *formatTime(time_t timestamp) {
  * Extracts hour and minute of the time string.
  */
 static void parseTimeFormat(const char *format, int *hour, int *minute) {
-  int separator_pos;
+  const char *separator = index(format, TIME_SEPARATOR);
 
-  if((separator_pos = strpos(format, TIME_SEPARATOR)) != -1) {
+  if(separator == NULL) {
+    *hour = (int)strtol(format, NULL, 10);
+    *minute = 0;
+  } else {
+    int separator_pos = strlen(format) - strlen(separator);
+
     char *hour_str = strndup(format, separator_pos);
     char *minute_str = strdup(format + separator_pos + 1);
 
     *hour = (int)strtol(hour_str, NULL, 10);
     *minute = (int)strtol(minute_str, NULL, 10);
-  } else {
-    *hour = (int)strtol(format, NULL, 10);
-    *minute = 0;
   }
 }
