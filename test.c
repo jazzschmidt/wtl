@@ -337,6 +337,31 @@ testFormatsTime() {
   return ok();
 }
 
+static MunitResult
+testAddsDuration() {
+  struct TestData {
+    char *time, *duration, *expected;
+  };
+
+  struct TestData testData[] = {
+    {"10:00", "02:30", "12:30"},
+    {"09:30", "08:50", "18:20"},
+  };
+
+  for(int i = 0; i < sizeof(testData) / sizeof(struct TestData); ++i) {
+    struct TestData data = testData[i];
+
+    time_t time = timeFromFormat(data.time);
+    time_t duration = durationFromFormat(data.duration);
+
+    char *result = formatTime(time + duration);
+
+    munit_assert_string_equal(result, data.expected);
+  }
+
+  return ok();
+}
+
 static MunitTest tests[] = {
   { "/sample-test", sample_test },
   { "/finds char position", test_strpos },
@@ -353,6 +378,7 @@ static MunitTest tests[] = {
   { "/time/validates a time argument", testIsValidTimeFormat },
   { "/time/creates from format", testTimeFromFormat },
   { "/time/formats timestamp to time", testFormatsTime },
+  { "/time/adds duration to time", testAddsDuration },
 
   /* Mark the end of the array with an entry where the test function is NULL */
   { NULL, NULL }
