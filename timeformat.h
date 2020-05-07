@@ -1,6 +1,6 @@
 
 int isTimeFormat(const char *format);
 
-int timeFromFormat(const char *format);
+time_t timeFromFormat(const char *format);
 
-char *formatTime(long timestamp);
+char *formatTime(time_t timestamp);

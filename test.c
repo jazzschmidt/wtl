@@ -263,7 +263,7 @@ testIsValidTimeFormat() {
   };
 
   const char *invalid[] = {
-    "invalid", "-1", "8:105", "800:5", "123456789"
+    "invalid", "-1", "8:105", "800:5", "200", "123456789" /* "::::" */
   };
 
   for(int i = 0; i < sizeof(valid) / sizeof(char *); ++i) {
@@ -289,6 +289,34 @@ testIsValidTimeFormat() {
   return ok();
 }
 
+
+static MunitResult
+testTimeFromFormat() {
+  struct TestData {
+    char *format; int hour, minute;
+  };
+
+  struct TestData testData[] = {
+    {"08:15", 8, 15},
+    {"07:5", 7, 5},
+    {"9:17", 9, 17},
+    {"8:5", 8, 5},
+    {"18", 18, 0}
+  };
+
+  for(int i = 0; i < sizeof(testData) / sizeof(struct TestData); ++i) {
+    struct TestData data = testData[i];
+    time_t time = timeFromFormat(data.format);
+
+    struct tm *time_local = localtime(&time);
+
+    munit_assert_int(time_local->tm_hour, ==, data.hour);
+    munit_assert_int(time_local->tm_min, ==, data.minute);
+  }
+
+  return ok();
+}
+
 static MunitTest tests[] = {
   { "/sample-test", sample_test },
   { "/finds char position", test_strpos },
@@ -303,6 +331,7 @@ static MunitTest tests[] = {
   { "/cfg/parses a configuration", testParseConfig },
   /* Time formatting */
   { "/time/validates a time argument", testIsValidTimeFormat },
+  { "/time/creates from format", testTimeFromFormat },
 
   /* Mark the end of the array with an entry where the test function is NULL */
   { NULL, NULL }
