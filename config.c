@@ -57,9 +57,6 @@ static ConfigReader getReaderFor(const char *key);
 
 static ConfigWriter getWriterFor(const char *key);
 
-/* Removes all parsers. Will be called automatically */
-static void clearParser(void);
-
 /* --------------------- Implementation --------------------- */
 
 /* Function: registerParser
@@ -264,11 +261,13 @@ static void stripNewline(char *line) {
  * ---------------------
  * Frees all registered parsers
  */
-static void clearParser(void) {
+void clearParser(void) {
   for(int i = 0; i < registeredParsers; ++i) {
     KeyParser *parser = *(parserList + i);
     free(parser);
   }
+
+  free(parserList);
 
   registeredParsers = 0;
 }
