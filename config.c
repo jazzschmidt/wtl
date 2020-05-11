@@ -121,6 +121,41 @@ void parseConfigFile(char *file, const void *config) {
 }
 
 
+typedef struct {
+  char **filebuf_ptr; /* Address of the new files content */
+  char ***updated_keys; /* List of updated keys */
+  int *updated_keys_size;
+  const void *config;
+} UpdateLineArgs;
+
+
+static void eachElementOf(void **list, int size, void *args, void(*fn)(void *, void *)) {
+  for(int i = 0; i < size; ++i) {
+    fn(*(list + i), args);
+  }
+}
+
+static void appendNewConfigLine(void *element, void *undef_args) {
+  KeyParser *parser = (KeyParser *)element;
+  UpdateLineArgs *args = (UpdateLineArgs *)undef_args;
+
+  const char *key = parser->key;
+  int is_updated = 0;
+
+  for(int i = 0; i < *args->updated_keys_size; ++i) {
+    if(strcmp(*(*args->updated_keys + i), key) == 0) {
+      return;
+    }
+  }
+
+  if(!is_updated) {
+    ConfigWriter writer = getWriterFor(key);
+    char *value_updated = writer(key, args->config);
+
+    asprintf(args->filebuf_ptr, "%s%s=%s\n", *args->filebuf_ptr, key, value_updated);
+  }
+}
+
 static void eachLineOf(FILE *file, void *args, void (*fn)(char *, void *)) {
   fseek(file, 0L, SEEK_SET);
 
@@ -132,13 +167,6 @@ static void eachLineOf(FILE *file, void *args, void (*fn)(char *, void *)) {
   }
   free(line);
 }
-
-typedef struct {
-  char **filebuf_ptr; /* Address of the new files content */
-  char ***updated_keys; /* List of updated keys */
-  int *updated_keys_size;
-  const void *config;
-} UpdateLineArgs;
 
 static void appendUpdatedConfigLine(char *line, void *undef_args) {
   UpdateLineArgs *args = (UpdateLineArgs *)undef_args;
@@ -185,26 +213,7 @@ void writeConfigFile(char *file, const void *config) {
   };
 
   eachLineOf(f, &updateArgs, &appendUpdatedConfigLine);
-
-  for(int i = 0; i < registeredParsers; ++i) {
-    KeyParser *parser = *(parserList + i);
-    const char *key = parser->key;
-    int is_updated = 0;
-
-    for(int j = 0; j < update_count; ++j) {
-      if(strcmp(*(keys_updated + j), key) == 0) {
-        is_updated = 1;
-        break;
-      }
-    }
-
-    if(!is_updated) {
-      ConfigWriter writer = getWriterFor(key);
-      char *value_updated = writer(key, config);
-
-      asprintf(&updated_file_content, "%s%s=%s\n", updated_file_content, key, value_updated);
-    }
-  }
+  eachElementOf((void **)parserList, registeredParsers, &updateArgs, &appendNewConfigLine);
 
   fclose(f);
   f = fopen(file, "w");
