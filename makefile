@@ -12,6 +12,16 @@ compile:
 	$(CC) -o $(BUILD_DIR)/wtl wtl.c
 	@echo "\xe2\x9c\x85"
 
+test-only:
+	@echo "###################"
+	@echo "####  Testing   ###"
+	@echo "###################"
+	mkdir -p $(BUILD_DIR)/test
+	GCOV_PREFIX=$(BUILD_DIR)/test; $(CC) \
+		-o $(BUILD_DIR)/test/wtl-test \
+		-DTEST=1 test.c wtl.c config.c timeformat.c lib/munit/munit.c
+	./$(BUILD_DIR)/test/wtl-test --show-stderr
+
 test:
 	@echo "###################"
 	@echo "####  Testing   ###"

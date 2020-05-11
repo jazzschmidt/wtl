@@ -121,6 +121,55 @@ void parseConfigFile(char *file, const void *config) {
 }
 
 
+static void eachLineOf(FILE *file, void *args, void (*fn)(char *, void *)) {
+  fseek(file, 0L, SEEK_SET);
+
+  char *line = NULL;
+  size_t linecap = 0;
+  ssize_t linelen;
+  while((linelen = getline(&line, &linecap, file)) != -1) {
+    fn(line, args);
+  }
+  free(line);
+}
+
+typedef struct {
+  char **filebuf_ptr; /* Address of the new files content */
+  char ***updated_keys; /* List of updated keys */
+  int *updated_keys_size;
+  const void *config;
+} UpdateLineArgs;
+
+static void appendUpdatedConfigLine(char *line, void *undef_args) {
+  UpdateLineArgs *args = (UpdateLineArgs *)undef_args;
+  char *key, *value;
+  strkeyvalue(line, &key, &value);
+
+  KeyParser *parser = getParser(key);
+  if(parser == NULL) { // Append current line unmodified
+    asprintf(args->filebuf_ptr, "%s%s", *args->filebuf_ptr, line);
+    return;
+  }
+
+  ConfigWriter writer = getWriterFor(key);
+  char *value_updated = writer(key, args->config);
+
+  long bytes = (*args->updated_keys_size + 1) * sizeof((void *)0);
+  void *ptr = realloc(*args->updated_keys, bytes);
+
+  if(ptr == NULL) {
+    return;
+  } else {
+    *args->updated_keys = ptr;
+  }
+
+  *(*args->updated_keys + *args->updated_keys_size) = strdup(key);
+  (*args->updated_keys_size)++;
+
+  asprintf(args->filebuf_ptr, "%s%s=%s\n", *args->filebuf_ptr, key, value_updated);
+}
+
+
 void writeConfigFile(char *file, const void *config) {
   FILE *f = requireFile(file, "r+");
 
@@ -128,35 +177,14 @@ void writeConfigFile(char *file, const void *config) {
   char **keys_updated = NULL;
   int update_count = 0;
 
-  char *line = NULL;
-  size_t linecap = 0;
-  ssize_t linelen;
-  while((linelen = getline(&line, &linecap, f)) != -1) {
-    char *key, *value;
-    char *newline;
-    strkeyvalue(line, &key, &value);
+  UpdateLineArgs updateArgs = {
+    .filebuf_ptr = &updated_file_content,
+    .updated_keys = &keys_updated,
+    .updated_keys_size = &update_count,
+    .config = config
+  };
 
-    KeyParser *parser = getParser(key);
-    if(parser != NULL) {
-      ConfigWriter writer = getWriterFor(key);
-      char *value_updated = writer(key, config);
-
-      void *ptr = realloc(keys_updated, (update_count + 1) * sizeof((void *)0));
-      if(ptr == NULL) {
-        return;
-      }
-
-      keys_updated = ptr;
-      *(keys_updated + update_count) = strdup(key);
-      update_count++;
-
-      asprintf(&newline, "%s=%s\n", key, value_updated);
-    } else {
-      asprintf(&newline, "%s", line);
-    }
-
-    asprintf(&updated_file_content, "%s%s", updated_file_content, newline);
-  }
+  eachLineOf(f, &updateArgs, &appendUpdatedConfigLine);
 
   for(int i = 0; i < registeredParsers; ++i) {
     KeyParser *parser = *(parserList + i);
